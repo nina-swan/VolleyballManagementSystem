@@ -17,4 +17,10 @@
     <Folder Include="Services\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Volleyball.DTO\Volleyball.DTO.csproj" />
+    <ProjectReference Include="..\Volleyball.Infrastructure.Database\Volleyball.Infrastructure.Database.csproj" />
+    <ProjectReference Include="..\VolleyballDomain.Shared\VolleyballDomain.Shared.csproj" />
+  </ItemGroup>
+
 </Project>
