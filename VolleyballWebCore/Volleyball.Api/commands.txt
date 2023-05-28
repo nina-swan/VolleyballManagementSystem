@@ -1,0 +1,1 @@
+dotnet ef dbcontext scaffold "Name=VolleyballDatabaseOld" Microsoft.EntityFrameworkCore.SqlServer --output-dir ../Volleyball.Infrastructure.Database/Models --context VolleyballContext --force --project ../Volleyball.Infrastructure.Database
