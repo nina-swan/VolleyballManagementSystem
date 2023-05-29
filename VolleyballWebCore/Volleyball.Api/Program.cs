@@ -6,7 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddDbContext<VolleyballContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("VolleyballDatabaseWebio"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
 
