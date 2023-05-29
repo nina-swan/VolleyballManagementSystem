@@ -9,13 +9,13 @@
 
   <ItemGroup>
     <Compile Remove="Repositories\**" />
+    <Compile Remove="Services\**" />
     <Content Remove="Repositories\**" />
+    <Content Remove="Services\**" />
     <EmbeddedResource Remove="Repositories\**" />
+    <EmbeddedResource Remove="Services\**" />
     <None Remove="Repositories\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\" />
+    <None Remove="Services\**" />
   </ItemGroup>
 
   <ItemGroup>
