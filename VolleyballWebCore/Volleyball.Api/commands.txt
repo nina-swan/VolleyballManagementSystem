@@ -1,0 +1,7 @@
+dotnet ef dbcontext scaffold "Name=VolleyballDatabaseOld" Microsoft.EntityFrameworkCore.SqlServer --output-dir ../Volleyball.Infrastructure.Database/Models --context VolleyballContext --force --project ../Volleyball.Infrastructure.Database
+
+
+dotnet ef migrations add InitialCreate --startup-project . --project ../Volleyball.Infrastructure.Database/
+dotnet ef database update --startup-project . --project ../Volleyball.Infrastructure.Database/
+
+dotnet ef migrations remove --startup-project . --project ../Volleyball.Infrastructure.Database/

@@ -4,13 +4,24 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>2da8d321-79ed-4729-adf5-5d14e5001f66</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="Repositories\**" />
+    <Compile Remove="Services\**" />
     <Content Remove="Repositories\**" />
+    <Content Remove="Services\**" />
     <EmbeddedResource Remove="Repositories\**" />
+    <EmbeddedResource Remove="Services\**" />
     <None Remove="Repositories\**" />
+    <None Remove="Services\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Volleyball.DTO\Volleyball.DTO.csproj" />
+    <ProjectReference Include="..\Volleyball.Infrastructure.Database\Volleyball.Infrastructure.Database.csproj" />
+    <ProjectReference Include="..\VolleyballDomain.Shared\VolleyballDomain.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
