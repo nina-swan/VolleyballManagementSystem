@@ -1,0 +1,210 @@
+﻿@page "/user-profile/0"
+@page "/user-profile/{Id:int}"
+
+@if (UserProfileData != null)
+{
+    <div class="d-flex flex-row justify-content-center">
+        <div class="text-center" style="max-width: 750px">
+            <div class="d-flex flex-row justify-content-center">
+
+                <div class="p-2 border border-primary" style="width: 150px; height: 200px">
+                    @if (UserProfileData.Photo != null)
+                    {
+                        <img src="@Convert.ToBase64String(UserProfileData.Photo)" />
+                    }
+                    else
+                    {
+                        <img src="/images/user.png">
+                    }
+
+                </div>
+                <div class="mr-5"></div>
+                <div class="p-2">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th>Stanowisko</th>
+                                <td>@UserProfileData.Roles</td>
+                            </tr>
+                            <tr>
+                                <th>Imię i nazwisko</th>
+                                <td>@UserProfileData.FirstName @UserProfileData.LastName</td>
+                            </tr>
+                            <tr>
+                                <th>Pozycja</th>
+                                <td>@(UserProfileData.PositionName ?? "Nieokreślona")</td>
+                            </tr>
+                            <tr>
+                                <th>Rok urodzenia</th>
+                                <td>@UserProfileData.BirthYear</td>
+                            </tr>
+                            <tr>
+                                <th>Miasto</th>
+                                <td>@UserProfileData.City</td>
+                            </tr>
+                            <tr>
+                                <th>Płeć</th>
+                                <td>@(UserProfileData.Gender.HasValue ? (UserProfileData.Gender.Value ? "Mężczyzna" : "Kobieta") : "Nieokreślone")</td>
+                            </tr>
+                            <tr>
+                                <th>Wzrost</th>
+                                <td>@UserProfileData.Height</td>
+                            </tr>
+                            <tr>
+                                <th>Waga</th>
+                                <td>@UserProfileData.Weight</td>
+                            </tr>
+                            <tr>
+                                <th>Numer koszulki</th>
+                                <td>@UserProfileData.JerseyNumber</td>
+                            </tr>
+                            <tr>
+                                <th>Zasięg w bloku</th>
+                                <td>@UserProfileData.BlockRange cm</td>
+                            </tr>
+                            <tr>
+                                <th>Zasięg w ataku</th>
+                                <td>@UserProfileData.AttackRange cm</td>
+                            </tr>
+                            <tr>
+                                <th>Idol siatkówki</th>
+                                <td>@UserProfileData.VolleyballIdol</td>
+                            </tr>
+                            <tr>
+                                <th>Hobby</th>
+                                <td>@UserProfileData.Hobby</td>
+                            </tr>
+
+                            <tr>
+                                <th>Informacje dodatkowe</th>
+                                <td>@UserProfileData.PersonalInfo</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="text-left">
+                <h4>Komentarze</h4>
+                @foreach (var Comment in ProfileComments)
+                {
+                    <div class="flex-row d-flex mb-4">
+                        <div>
+                            @if (Comment.Author.Photo != null)
+                            {
+                                <img class="img-thumbnail" style="width: 100px" src="@Convert.ToBase64String(Comment.Author.Photo)">
+                            }
+                            else
+                            {
+                                <img class="img-thumbnail" style="width: 100px" src="/images/user.png">
+                            }
+
+                        </div>
+                        <div class="mr-3"></div>
+                        <div>
+                            <small>
+                                @Comment.CreationDate przez <NavLink href=@{
+                                                             "/user-profile/" + Comment.Author.Id
+                                                             }>@Comment.Author.FirstName @Comment.Author.LastName</NavLink>
+                            </small>
+                            <p>@Comment.Content</p>
+                        </div>
+                    </div>
+                }
+                <div class="mb-4">
+                <EditForm Model="@commentModel" OnValidSubmit="HandleValidSubmit">
+                    <div class="form-group">
+                        <label class="row-form-label" for="Comment">Dodaj komentarz:</label>
+                        <InputTextArea class="form-control" id="Comment" @bind-Value="commentModel.Content" />
+                        <ValidationMessage For="@(() => commentModel.Content)" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Dodaj</button>
+                </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <p>Loading user profile...</p>
+}
+
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    public UserProfileDto? UserProfileData { get; set; }
+
+    public List<ProfileCommentDto> ProfileComments { get; set; }
+
+    public NewCommentDto commentModel { get; set; }
+
+    protected override void OnInitialized()
+    {
+        UserProfileData = GetUserProfile();
+
+        commentModel = new NewCommentDto()
+            {
+                CommentLocation = Id,
+            };
+
+        ProfileComments = new List<ProfileCommentDto>
+        {
+            new ProfileCommentDto
+            {
+                Id = 1,
+                Author = new AuthorInfoDto
+                {
+                    Id = 1,
+                    FirstName = "John",
+                    LastName = "Doe"
+                },
+                Content = "Super zawodnik!",
+                CreationDate = DateTime.Now
+            },
+            new ProfileCommentDto
+            {
+                Id = 1,
+                Author = new AuthorInfoDto
+                {
+                    Id = 1,
+                    FirstName = "John",
+                    LastName = "Doe"
+                },
+                Content = "Super zawodnik!",
+                CreationDate = DateTime.Now
+            },
+        };
+    }
+
+    public UserProfileDto GetUserProfile()
+    {
+        return new UserProfileDto
+            {
+                Id = 1,
+                FirstName = "John",
+                LastName = "Doe",
+                BirthYear = 1990,
+                City = "New York",
+                PersonalInfo = "I love playing volleyball! volleyballvolleyball volleyball volleyball volleyball volleyball volleyball volleyball volleyball ",
+                Photo = null,
+                Gender = true,
+                Height = 180,
+                Weight = 75,
+                JerseyNumber = 10,
+                BlockRange = 280,
+                AttackRange = 300,
+                VolleyballIdol = "Misty May-Treanor",
+                Hobby = "Hiking",
+                PositionName = "Middle Blocker"
+            };
+
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        // todo
+    }
+}

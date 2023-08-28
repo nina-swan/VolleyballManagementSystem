@@ -1,9 +1,75 @@
 ﻿@page "/"
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
+                <div class="page-wrapper">
+                    <div class="blog-top clearfix">
+                        <h4 class="pull-left">Aktualności</h4>
+                    </div><!-- end blog-top -->
 
-<PageTitle>Index</PageTitle>
+                    <div class="blog-list clearfix">
+                        @foreach (var Article in Articles)
+                        {
+                            <ArticlePreview Article="Article" />
+                            <hr class="invis">
+                        }
+                    </div>
 
-<h1>Hello, world!</h1>
+                </div>
+                <NavLink href=@{
+                    $"/user-profile/1"
+}> asdasdasddae</NavLink>
+            </div>
 
-Welcome to your new app.
+            
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+                <div class="sidebar">
+                    <div class="widget">
+                        <h3 class="widget-title">Aktywność</h3>
+                        @foreach (var PersonalLog in personalLogs)
+                        {
+                            <div>
+                                <small>@PersonalLog.Date</small>
+                                @if(PersonalLog.Link != null)
+                                {
+                                    <p><NavLink href="@PersonalLog.Link">@PersonalLog.Description</NavLink></p>
+                                }
+                                else
+                                {
+                                <p>@PersonalLog.Description</p>
+                                }
+                            </div>
+
+                        }
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div><!-- end container -->
+</section>
+
+@code {
+    ArticleDto[] Articles = new ArticleDto[]
+        {
+            new ArticleDto {
+                Id = 1,
+                Title = "Title Title Title Title Title Title Title Title Title Title ",
+                Content = "Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content ",
+                CreationDate = DateTime.Now,
+                Author = new User { FirstName = "John", LastName = "Doe" }
+            },
+             new ArticleDto { Id = 2, Title = "Let's make an introduction for..", Content = "Content", CreationDate = DateTime.Now,Author = new User { FirstName = "John", LastName = "Doe" } },
+             new ArticleDto { Id = 3, Title = "Did you see the most beautiful..", Content = "Content", CreationDate = DateTime.Now,Author = new User { FirstName = "John", LastName = "Doe" }  }
+        };
+
+    PersonalLogDto[] personalLogs = new PersonalLogDto[]
+    {
+        new PersonalLogDto { Id = 1, Description = "Content", Date = DateTime.Now, User = new User { FirstName = "John", LastName = "Doe" }, Link = "wp.pl" },
+        new PersonalLogDto { Id = 2, Description = "Content", Date = DateTime.Now, User = new User { FirstName = "John", LastName = "Doe" }, Link = "wp.pl" },
+        new PersonalLogDto { Id = 3, Description = "Content", Date = DateTime.Now, User = new User { FirstName = "John", LastName = "Doe" }, Link = "wp.pl" }
+    };
+}

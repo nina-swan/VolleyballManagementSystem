@@ -1,0 +1,51 @@
+﻿<header class="tech-header header">
+    <div class="container-fluid">
+        <nav class="navbar navbar-toggleable-md navbar-inverse fixed-top bg-inverse">
+            <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <NavLink class="navbar-brand" href="/"><img src="images/logo.png" alt=""></NavLink>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="/">Start</NavLink>
+                    </li>
+                    <li class="nav-item dropdown has-submenu menu-large hidden-md-down hidden-sm-down hidden-xs-down">
+                        <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Tabele</a>
+                        <ul class="dropdown-menu megamenu bg-inverse" aria-labelledby="dropdown01">
+                            <li>
+                                <NavLink class="nav-link" href="/typermania">Typermania</NavLink>
+                            </li>
+                            <li>
+                                <NavLink class="nav-link" href="/mvp">MVP</NavLink>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="/teams">Zespoły</NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="/schedule">Terminarz</NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="/forum">Forum</NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="/league">Liga</NavLink>
+                    </li>
+                </ul>
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="/login">Zaloguj się</NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="/register">Zarejestruj się</NavLink>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+</header>
+@code {
+
+}

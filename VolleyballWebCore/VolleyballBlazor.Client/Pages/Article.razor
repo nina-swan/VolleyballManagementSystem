@@ -1,0 +1,55 @@
+﻿@using System.Text;
+
+@page "/article/{Id:int}"
+@page "/article/zzz"
+
+<div class="d-flex flex-row justify-content-between">
+    @if (ArticleData != null)
+    {
+        <div class="p-2">
+            <small>@ArticleData.CreationDate</small>
+            <h1>@ArticleData.Title</h1>
+
+
+            <p>@ArticleData.Content</p>
+
+
+            <small>Dodano przez: <NavLink href=@{$"/user-profile/{ArticleData.Author.Id}"}> @ArticleData.Author.FirstName @ArticleData.Author.LastName</NavLink></small>
+            <small>@ArticleData.CreationDate</small>
+        </div>
+        <div class="p-2">
+            <img src="@ArticleData.Image">
+        </div>
+    }
+</div>
+
+
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    public ArticleDto? ArticleData { get; set; }
+
+    protected override void OnInitialized()
+    {
+        ArticleData = GetArticle();
+    }
+
+    public ArticleDto GetArticle()
+    {
+        return new ArticleDto
+            {
+                Id = 1,
+                Title = "Title",
+                Content = "Content ContentContentContentContentContentCont entContentContentContentContentContentContentContentContentContentContentContentContent",
+                CreationDate = DateTime.Now,
+                Author = new User { Id = 1, FirstName = "John", LastName = "Doe" },
+                Image = Encoding.ASCII.GetBytes("https://www.w3schools.com/w3css/img_lights.jpg")
+
+            };
+
+
+    }
+}
+

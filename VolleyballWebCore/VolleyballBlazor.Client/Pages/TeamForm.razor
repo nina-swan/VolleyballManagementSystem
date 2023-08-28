@@ -1,0 +1,101 @@
+﻿@page "/teamform"
+@inject HttpClient Http
+
+<h3>Team Form</h3>
+
+<hr />
+@if (!success)
+{
+    <EditForm Model="Model" OnValidSubmit="HandleValidSubmit">
+        <div class="form-group">
+            <label>Name:</label>
+            <InputText class="form-control" @bind-Value="Model.Name" />
+        </div>
+
+        <div class="form-group">
+            <label>League:</label>
+            <InputSelect class="form-control" @bind-Value="@Model.LeagueId">
+                @if (leagues == null)
+                {
+                    <option value="null" disabled>Loading leagues...</option>
+                }
+                else
+                {
+                    @foreach (LeagueDTO league in leagues)
+                    {
+                        <option value="@league.LeagueId">@league.Name</option>
+                    }
+                }
+            </InputSelect>
+        </div>
+
+        <div class="form-group">
+            <label>Captain:</label>
+            <InputSelect class="form-control" @bind-Value="@Model.CaptainId">
+                @if (captains == null)
+                {
+                    <option value="null" disabled>Loading players...</option>
+                }
+                else
+                {
+                    @foreach (PlayerDTO player in captains)
+                    {
+                        <option value="@player.PlayerId">@player.PlayerId @player.Name @player.Surname</option>
+                    }
+                }
+            </InputSelect>
+        </div>
+        <p>@message</p>
+        <button type="submit" class="btn btn-success">Submit</button>
+
+    </EditForm>
+}
+else
+{
+    <p>Team added successfully!</p>
+}
+
+@code {
+    public NewTeamDTO Model = new NewTeamDTO();
+    public DbService dbService = new DbService();
+    public List<PlayerDTO>? captains = null;
+    public List<LeagueDTO>? leagues = null;
+
+    public bool success = false;
+    public string message = "";
+
+    protected async override Task OnInitializedAsync()
+    {
+        captains = await Http.GetFromJsonAsync<List<PlayerDTO>>($"https://localhost:7213/api/player");
+        leagues = await Http.GetFromJsonAsync<List<LeagueDTO>>($"https://localhost:7213/api/leagues");
+
+        Model.CaptainId = captains?.First().PlayerId ?? 0;
+        Model.LeagueId = leagues?.First().LeagueId ?? 0;
+    }
+
+    public async System.Threading.Tasks.Task HandleValidSubmit()
+    {
+        try
+        {
+
+
+            var content = JsonSerializer.Serialize(Model);
+            var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
+
+            var res = await Http.PostAsync("https://localhost:7213/api/teams", bodyContent);
+
+            if (res.IsSuccessStatusCode)
+            {
+                success = true;
+            }
+            else
+            {
+                message = await res.Content.ReadAsStringAsync();
+            };
+        }
+        catch (Exception e)
+        {
+            message = e.Message;
+        }
+    }
+}
