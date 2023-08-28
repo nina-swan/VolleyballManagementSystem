@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\VolleyballDomain.Shared\VolleyballDomain.Shared.csproj" />
+    <ProjectReference Include="..\Volleyball.Infrastructure.Database\Volleyball.Infrastructure.Database.csproj" />
+  </ItemGroup>
+
 </Project>
