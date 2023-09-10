@@ -16,9 +16,9 @@ namespace Volleyball.DTO
         public string? PersonalInfo { get; set; }
         public byte[]? Photo { get; set; }
         public bool? Gender { get; set; }
-        public byte? Height { get; set; }
-        public byte? Weight { get; set; }
-        public byte? JerseyNumber { get; set; }
+        public int? Height { get; set; }
+        public int? Weight { get; set; }
+        public int? JerseyNumber { get; set; }
         public int? BlockRange { get; set; }
         public int? AttackRange { get; set; }
         public string? VolleyballIdol { get; set; }

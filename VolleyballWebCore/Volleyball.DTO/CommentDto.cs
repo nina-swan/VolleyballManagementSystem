@@ -7,7 +7,7 @@ using Volleyball.Infrastructure.Database.Models;
 
 namespace Volleyball.DTO
 {
-    public class ProfileCommentDto
+    public class CommentDto
     {
         public int Id { get; set; }
 

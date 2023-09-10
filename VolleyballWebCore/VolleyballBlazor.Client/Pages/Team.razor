@@ -1,0 +1,442 @@
+﻿@page "/team/{Id:int}"
+
+
+@if (TeamData != null)
+{
+    <div class="text-center">
+        <div>
+            @if (TeamData.Photo != null)
+            {
+                <img src="@Convert.ToBase64String(TeamData.Photo)" />
+            }
+        </div>
+        <h2>@TeamData.Name</h2>
+        <div class="d-flex flex-row flex-wrap justify-content-center">
+
+            <div class="mr-3 border border-primary">
+                @if (TeamData.Logo != null)
+                {
+                    <img src="@Convert.ToBase64String(TeamData.Logo)" />
+                }
+                else
+                {
+                    <img src="/images/user.png">
+                }
+
+            </div>
+            <div class="p-2 card table-responsive" style="max-width:580px">
+                <div class="card-header">
+                    Zawodnicy
+                </div>
+                <div class="table-responsive">
+                    <table class="table text-left">
+                        <thead>
+                            <tr>
+                                <th>LP:</th>
+                                <th>Imię i nazwisko</th>
+                                <th>Numer</th>
+                                <th>Wzrost</th>
+                                <th>Pozycja</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>
+                                    <NavLink href=@{
+                                         "/user-profile/" + TeamData.Captain.Id
+                                         }><b>@TeamData.Captain.FirstName @TeamData.Captain.LastName (K)</b></NavLink>
+                                </td>
+                                <td>@TeamData.Captain.JerseyNumber</td>
+                                <td>@TeamData.Captain.Height</td>
+                                <td>@TeamData.Captain.PositionName</td>
+                            </tr>
+                            @foreach (var player in TeamData.Players)
+                            {
+
+                                <tr>
+                                    <td>@(++i)</td>
+                                    <td>
+                                        <NavLink href=@{
+                                         "/user-profile/" + player.Id
+                                         }>@player.FirstName @player.LastName</NavLink>
+                                    </td>
+                                    <td>@(player.JerseyNumber.HasValue ? player.JerseyNumber : "?")</td>
+                                    <td>@(player.Height.HasValue ? player.Height : "?")</td>
+                                    <td>@player.PositionName</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="p-2 card mt-4 mb-5 table-responsive">
+            <div class="card-header">
+                Informacje o drużynie
+            </div>
+            <table class="table text-left">
+                <tbody>
+                    <tr>
+                        <td><b>Nazwa</b></td>
+                        <td>@TeamData.Name</td>
+                    </tr>
+                    <tr>
+                        <td><b>Strona www</b></td>
+                        <td><a href="@TeamData.Website">@TeamData.Website</a></td>
+                    </tr>
+                    <tr>
+                        <td><b>Opis</b></td>
+                        <td>@TeamData.TeamDescription</td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+
+        <div class="p-2 card mt-4 mb-5 table-responsive-lg">
+            <div class="card-header">
+                Historia meczów
+            </div>
+            <div class="form-group row p-5">
+                <label for="season">Sezon:</label>
+                <select class="form-control" id="season" @onchange="UpdateSeason">
+                    @if (Seasons == null)
+                    {
+                        <option value="null" disabled>Ładowanie sezonów...</option>
+                    }
+                    else
+                    {
+                        @foreach (SeasonDto season in Seasons)
+                        {
+                            <option value="@season.Id">@season.Name</option>
+                        }
+                    }
+
+                </select>
+            </div>
+            <table class="table text-left" style="max-width:800px">
+                <thead>
+                    <tr>
+                        <th>Termin</th>
+                        <th>Gospodarz</th>
+                        <th>Wynik</th>
+                        <th>Gość</th>
+                        <th>Miejsce</th>
+                        <th>Kolejka</th>
+                        <th>Sędzia</th>
+                        <th>MVP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var game in Games)
+                    {
+                        <tr>
+                            <td>@game.Schedule</td>
+                            <td>
+                                <NavLink href=@{
+                                 "/team/" + game.HomeTeam.Id
+                                 }>@game.HomeTeam.Name</NavLink>
+                            </td>
+                            <td>@game.Team1Score : @game.Team2Score</td>
+                            <td>
+                                <NavLink href=@{
+                                 "/team/" + game.GuestTeam.Id
+                                 }>@game.GuestTeam.Name</NavLink>
+                            </td>
+                            <td>@game.VenueName</td>
+                            <td>@game.RoundName</td>
+                            <td>
+                                <NavLink href=@{
+                                 "/user-profile/" + game.Referee.Id
+                                 }>@game.Referee.FirstName @game.Referee.LastName</NavLink>
+                            </td>
+                            <td>
+                                <NavLink href=@{
+                                 "/user-profile/" + game.MVP.Id
+                                 }>@game.MVP.FirstName @game.MVP.LastName</NavLink>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+        </div>
+
+        <div class="text-left">
+            <h4>Komentarze</h4>
+            @foreach (var Comment in ProfileComments)
+            {
+                <div class="flex-row d-flex mb-4">
+                    <div>
+                        @if (Comment.Author.Photo != null)
+                        {
+                            <img class="img-thumbnail" style="width: 100px" src="@Convert.ToBase64String(Comment.Author.Photo)">
+                        }
+                        else
+                        {
+                            <img class="img-thumbnail" style="width: 100px" src="/images/user.png">
+                        }
+
+                    </div>
+                    <div class="mr-3"></div>
+                    <div>
+                        <small>
+                            @Comment.CreationDate przez <NavLink href=@{
+                                                         "/user-profile/" + Comment.Author.Id
+                                                         }>@Comment.Author.FirstName @Comment.Author.LastName</NavLink>
+                        </small>
+                        <p>@Comment.Content</p>
+                    </div>
+                </div>
+            }
+            <div class="mb-4">
+                <EditForm Model="@commentModel" OnValidSubmit="HandleValidSubmit">
+                    <div class="form-group">
+                        <label class="row-form-label" for="Comment">Dodaj komentarz:</label>
+                        <InputTextArea class="form-control" id="Comment" @bind-Value="commentModel.Content" />
+                        <ValidationMessage For="@(() => commentModel.Content)" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Dodaj</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+
+}
+else
+{
+    <p>Loading user profile...</p>
+}
+
+
+@code {
+    private int i = 1;
+
+    [Parameter]
+    public int Id { get; set; }
+
+    public TeamDto? TeamData { get; set; }
+
+    public List<CommentDto> ProfileComments { get; set; }
+
+    public List<SeasonDto>? Seasons { get; set; }
+
+    public NewCommentDto commentModel { get; set; }
+
+    public List<MatchDto>? Games { get; set; }
+
+    protected override void OnInitialized()
+    {
+        TeamData = GetTeamProfile();
+
+        Seasons = GetSeasons();
+
+        UpdateSeason(Seasons.First().Id);
+
+        commentModel = new NewCommentDto()
+            {
+                CommentLocation = Id,
+            };
+
+        ProfileComments = new List<CommentDto>
+        {
+            new CommentDto
+            {
+                Id = 1,
+                Author = new AuthorInfoDto
+                {
+                    Id = 1,
+                    FirstName = "John",
+                    LastName = "Doe"
+                },
+                Content = "Super drużyna!",
+                CreationDate = DateTime.Now
+            },
+            new CommentDto
+            {
+                Id = 1,
+                Author = new AuthorInfoDto
+                {
+                    Id = 1,
+                    FirstName = "John",
+                    LastName = "Doe",
+                },
+                Content = "Super drużyna!",
+                CreationDate = DateTime.Now
+            },
+        };
+    }
+
+
+    private async Task HandleValidSubmit()
+    {
+        // todo
+    }
+
+    public TeamDto GetTeamProfile()
+    {
+        return new TeamDto
+            {
+                Id = 1,
+                Name = "Sample Team",
+                CreationDate = DateTime.Now,
+                League = new LeagueDto
+                {
+                    Id = 1,
+                    Name = "Sample League"
+                },
+                Captain = new UserProfileDto
+                {
+                    Id = 101,
+                    FirstName = "John",
+                    LastName = "Doe",
+                    BirthYear = 1990,
+                    City = "New York",
+                    PersonalInfo = "I love playing volleyball!",
+                    Photo = new byte[] { 4, 5, 6 },
+                    Gender = true,
+                    Height = 180,
+                    Weight = 75,
+                    JerseyNumber = 10,
+                    BlockRange = 280,
+                    AttackRange = 300,
+                    VolleyballIdol = "Misty May-Treanor",
+                    Hobby = "Hiking",
+                    PositionName = "Middle Blocker"
+                },
+                Players = new List<UserProfileDto>
+                {
+                    new UserProfileDto
+                    {
+                        Id = 1,
+                        FirstName = "John",
+                        LastName = "Doe",
+                        PositionName = "Rozgrywający",
+                        Height = 180,
+                    },
+                    new UserProfileDto
+                    {
+                        Id = 2,
+                        FirstName = "John",
+                        LastName = "Doe",
+                        BirthYear = 1990,
+                        Height = 180,
+                        PositionName = "Blokujący"
+                    }
+                },
+                Email = "sample@example.com",
+                Logo = null,
+                Phone = "987-654-3210",
+                TeamDescription = "A sample volleyball team",
+                Website = "https://www.sampleteam.com"
+            };
+    }
+
+
+
+    private void UpdateSeason(ChangeEventArgs e)
+    {
+        int seasonId = Convert.ToInt32(e.Value);
+
+        UpdateSeason(seasonId);
+    }
+
+    private void UpdateSeason(int id)
+    {
+        var leagueDto = new LeagueDto
+            {
+                Id = 1,
+                Name = "Sample League"
+            };
+
+        var userSummaryDto = new UserSummaryDto
+            {
+                Id = 101,
+                FirstName = "John",
+                LastName = "Doe",
+            };
+
+        var teamDto1 = new TeamDto
+            {
+                Id = 201,
+                Name = "Team A",
+                CreationDate = DateTime.Now,
+                Logo = new byte[] { 1, 2, 3 },
+            };
+
+        var teamDto2 = new TeamDto
+            {
+                Id = 202,
+                Name = "Team B",
+                CreationDate = DateTime.Now,
+                Logo = new byte[] { 4, 5, 6 },
+            };
+
+
+        var matchDto = new MatchDto
+            {
+                Id = 1,
+                Schedule = DateTime.Now.AddHours(24),
+                CreationDate = DateTime.Now,
+                VenueName = "Sample Venue",
+                League = leagueDto,
+                Sector = 2,
+                Team1Score = 3,
+                Team2Score = 2,
+                RoundName = "Kolejka 9",
+                Referee = userSummaryDto,
+                MatchInfo = "Sample match info",
+                MVP = userSummaryDto,
+                Set1Team1Score = 25,
+                Set2Team1Score = 23,
+                Set3Team1Score = 25,
+                Set4Team1Score = 22,
+                Set5Team1Score = 15,
+                Set1Team2Score = 21,
+                Set2Team2Score = 25,
+                Set3Team2Score = 23,
+                Set4Team2Score = 25,
+                Set5Team2Score = 13,
+                MatchLeague = "Sample Match League",
+                HomeTeam = teamDto1,
+                GuestTeam = teamDto2,
+                TypedResults = null
+            };
+        if (id == 1)
+        {
+            Games = new List<MatchDto>
+                {
+                    matchDto, matchDto, matchDto
+                };
+        }
+        else
+        {
+            Games = new List<MatchDto>
+                {
+                    matchDto, matchDto, matchDto, matchDto, matchDto
+                };
+        }
+
+    }
+
+    public List<SeasonDto> GetSeasons()
+    {
+        return new List<SeasonDto>
+        {
+            new SeasonDto
+            {
+                Id = 1,
+                Name = "Wiosna 2020"
+            },
+            new SeasonDto
+            {
+                Id = 2,
+                Name = "Lato 2020"
+            },
+        };
+    }
+}

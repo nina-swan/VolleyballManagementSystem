@@ -137,7 +137,7 @@ else
 
     public UserProfileDto? UserProfileData { get; set; }
 
-    public List<ProfileCommentDto> ProfileComments { get; set; }
+    public List<CommentDto> ProfileComments { get; set; }
 
     public NewCommentDto commentModel { get; set; }
 
@@ -150,9 +150,9 @@ else
                 CommentLocation = Id,
             };
 
-        ProfileComments = new List<ProfileCommentDto>
+        ProfileComments = new List<CommentDto>
         {
-            new ProfileCommentDto
+            new CommentDto
             {
                 Id = 1,
                 Author = new AuthorInfoDto
@@ -164,7 +164,7 @@ else
                 Content = "Super zawodnik!",
                 CreationDate = DateTime.Now
             },
-            new ProfileCommentDto
+            new CommentDto
             {
                 Id = 1,
                 Author = new AuthorInfoDto

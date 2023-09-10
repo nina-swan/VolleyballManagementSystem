@@ -1,5 +1,225 @@
-﻿<h3>TeamsList</h3>
+﻿@page "/teamslist"
+@inject HttpClient Http
+
+<div class="d-flex flex-column justify-content-center">
+    <div class="form-group row" style="max-width:700px">
+        <label for="league">Liga:</label>
+        <select class="form-control" id="league" @onchange="UpdateLeague">
+            @if (Leagues == null)
+            {
+                <option value="null" disabled>Ładowanie lig...</option>
+            }
+            else
+            {
+                @foreach (LeagueDto league in Leagues)
+                {
+                    <option value="@league.Id">@league.Name</option>
+                }
+            }
+
+        </select>
+    </div>
+    <div>
+        @if (Teams == null)
+        {
+            <p>Wybierz ligę, by zobaczyć drużyny</p>
+
+        }
+        else
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col"></th>
+                        <th scope="col">Drużyna</th>
+                        <th scope="col">Kapitan</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (TeamDto team in Teams)
+                    {
+                        <tr>
+                            <td>
+                                @if (team.Logo != null)
+                                {
+                                    <img class="img-thumbnail" style="width: 100px" src="@Convert.ToBase64String(team.Logo)">
+                                }
+                                else
+                                {
+                                    <img class="img-thumbnail" style="width: 100px" src="/images/user.png">
+                                }
+                            </td>
+                            <td>
+                                <NavLink href="@{
+                        "/team/"+team.Id
+}"> @team.Name </NavLink>
+                            </td>
+                            <td>
+                                <NavLink href="@{
+                        "/user-profile/"+team.Captain.Id
+}">@team.Captain.FirstName @team.Captain.LastName</NavLink>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+        }
+    </div>
+
+</div>
 
 @code {
 
+    public List<LeagueDto>? Leagues;
+
+    public List<TeamDto>? Teams;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Leagues = null;
+        Leagues = GetLeagues();
+    }
+
+
+    private List<LeagueDto> GetLeagues()
+    {
+        Task.Delay(1000);
+
+        var leagues = new List<LeagueDto>();
+        leagues.Add(new LeagueDto { Id = 1, Name = "League 1" });
+        leagues.Add(new LeagueDto { Id = 2, Name = "League 2" });
+        leagues.Add(new LeagueDto { Id = 3, Name = "League 3" });
+        return leagues;
+    }
+
+
+    private void UpdateLeague(ChangeEventArgs e)
+    {
+        int leagueId = Convert.ToInt32(e.Value);
+
+        // placeholders
+
+        Teams = new List<TeamDto>();
+
+        if (leagueId == 1)
+        {
+            Teams.Add(new TeamDto
+                {
+                    Id = 1,
+                    Name = "Team 1",
+                    Captain = new UserProfileDto
+                    {
+                        FirstName = "Jan",
+                        LastName = "Kowalski",
+                        Id = 1,
+                    },
+                    Logo = null,
+                });
+            Teams.Add(new TeamDto
+                {
+                    Id = 2,
+                    Name = "Team 2",
+                    Captain = new UserProfileDto
+                    {
+                        FirstName = "Jan",
+                        LastName = "Kowalski",
+                        Id = 1,
+                    },
+                    Logo = null,
+                });
+            Teams.Add(new TeamDto
+                {
+                    Id = 3,
+                    Name = "Team 3",
+                    Captain = new UserProfileDto
+                    {
+                        FirstName = "Jan",
+                        LastName = "Kowalski",
+                        Id = 1,
+                    },
+                    Logo = null,
+                });
+        }
+        else if (leagueId == 2)
+        {
+            Teams.Add(new TeamDto
+                {
+                    Id = 4,
+                    Name = "Team 4",
+                    Captain = new UserProfileDto
+                    {
+                        FirstName = "Jan",
+                        LastName = "Kowalski",
+                        Id = 1,
+                    },
+                    Logo = null,
+                });
+            Teams.Add(new TeamDto
+                {
+                    Id = 5,
+                    Name = "Team 5",
+                    Captain = new UserProfileDto
+                    {
+                        FirstName = "Jan",
+                        LastName = "Kowalski",
+                        Id = 1,
+                    },
+                    Logo = null,
+                });
+            Teams.Add(new TeamDto
+                {
+                    Id = 6,
+                    Name = "Team 6",
+                    Captain = new UserProfileDto
+                    {
+                        FirstName = "Jan",
+                        LastName = "Kowalski",
+                        Id = 1,
+                    },
+                    Logo = null,
+                });
+        }
+        else if (leagueId == 3)
+        {
+            Teams.Add(new TeamDto
+                {
+                    Id = 7,
+                    Name = "Team 7",
+                    Captain = new UserProfileDto
+                    {
+                        FirstName = "Jan",
+                        LastName = "Kowalski",
+                        Id = 1,
+                    },
+                    Logo = null,
+                });
+            Teams.Add(new TeamDto
+                {
+                    Id = 8,
+                    Name = "Team 8",
+                    Captain = new UserProfileDto
+                    {
+                        FirstName = "Jan",
+                        LastName = "Kowalski",
+                        Id = 1,
+                    },
+                    Logo = null,
+                });
+            Teams.Add(new TeamDto
+                {
+                    Id = 9,
+                    Name = "Team 9",
+                    Captain = new UserProfileDto
+                    {
+                        FirstName = "Jan",
+                        LastName = "Kowalski",
+                        Id = 1,
+                    },
+                    Logo = null,
+                });
+        }
+
+    }
 }

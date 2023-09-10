@@ -8,10 +8,6 @@ main {
     flex: 1;
 }
 
-.sidebar {
-    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
-}
-
 .top-row {
     background-color: #f7f7f7;
     border-bottom: 1px solid #d6d5d5;
@@ -49,7 +45,10 @@ main {
         margin-left: 0;
     }
 }
-
+.sidebar{
+    background-color: blue;
+    color: red;
+}
 @media (min-width: 641px) {
     .page {
         flex-direction: row;
@@ -59,6 +58,7 @@ main {
         width: 250px;
         height: 100vh;
         position: sticky;
+        background-color: red;
         top: 0;
     }
 
