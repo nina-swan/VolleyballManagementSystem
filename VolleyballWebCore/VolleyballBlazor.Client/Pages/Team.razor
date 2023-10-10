@@ -135,7 +135,11 @@
                     @foreach (var game in Games)
                     {
                         <tr>
-                            <td>@game.Schedule</td>
+                            <td>
+                                <NavLink href=@{
+                                 "/match/" + game.Id
+                                 }>@game.Schedule</NavLink>
+                            </td>
                             <td>
                                 <NavLink href=@{
                                  "/team/" + game.HomeTeam.Id
@@ -289,43 +293,37 @@ else
                     Id = 1,
                     Name = "Sample League"
                 },
-                Captain = new UserProfileDto
+                Captain = new UserSummaryDto
                 {
                     Id = 101,
                     FirstName = "John",
                     LastName = "Doe",
-                    BirthYear = 1990,
-                    City = "New York",
-                    PersonalInfo = "I love playing volleyball!",
                     Photo = new byte[] { 4, 5, 6 },
-                    Gender = true,
                     Height = 180,
-                    Weight = 75,
                     JerseyNumber = 10,
-                    BlockRange = 280,
-                    AttackRange = 300,
-                    VolleyballIdol = "Misty May-Treanor",
-                    Hobby = "Hiking",
                     PositionName = "Middle Blocker"
                 },
-                Players = new List<UserProfileDto>
+                Players = new List<UserSummaryDto>
                 {
-                    new UserProfileDto
+                    new UserSummaryDto
                     {
-                        Id = 1,
-                        FirstName = "John",
-                        LastName = "Doe",
-                        PositionName = "Rozgrywający",
-                        Height = 180,
+                    Id = 101,
+                    FirstName = "John",
+                    LastName = "Doe",
+                    Photo = new byte[] { 4, 5, 6 },
+                    Height = 180,
+                    JerseyNumber = 10,
+                    PositionName = "Middle Blocker"
                     },
-                    new UserProfileDto
+                    new UserSummaryDto
                     {
-                        Id = 2,
-                        FirstName = "John",
-                        LastName = "Doe",
-                        BirthYear = 1990,
-                        Height = 180,
-                        PositionName = "Blokujący"
+                    Id = 101,
+                    FirstName = "John",
+                    LastName = "Doe",
+                    Photo = new byte[] { 4, 5, 6 },
+                    Height = 180,
+                    JerseyNumber = 10,
+                    PositionName = "Middle Blocker"
                     }
                 },
                 Email = "sample@example.com",

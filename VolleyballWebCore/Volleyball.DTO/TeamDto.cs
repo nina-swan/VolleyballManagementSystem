@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Volleyball.Infrastructure.Database.Models;
 
 namespace Volleyball.DTO
 {
@@ -18,9 +19,9 @@ namespace Volleyball.DTO
 
         public LeagueDto? League { get; set; }
 
-        public UserProfileDto Captain { get; set; } = null!;
+        public UserSummaryDto Captain { get; set; } = null!;
 
-        public List<UserProfileDto> Players { get; set; } = null!;
+        public List<UserSummaryDto> Players { get; set; } = null!;
 
         public string Email { get; set; } = null!;
 
@@ -35,5 +36,28 @@ namespace Volleyball.DTO
         public string? Website { get; set; }
 
         public int? PointCorrection { get; set; }
+
+        // Method to generate TeamDto from Team
+        public static TeamDto GenerateTeamDto(Team team)
+        {
+            return new TeamDto
+            {
+                Id = team.Id,
+                Name = team.Name,
+                CreationDate = team.CreationDate,
+                Image = team.Image,
+                League = LeagueDto.GenerateLeagueDto(team.League),
+                Captain = UserSummaryDto.GenerateUserSummaryDto(team.Captain),
+                Players = team.TeamPlayers.Select(p => UserSummaryDto.GenerateUserSummaryDto(p.Player)).ToList(),
+                Email = team.Email,
+                Logo = team.Logo,
+                Photo = team.Image,
+                Phone = team.Phone,
+                TeamDescription = team.TeamDescription,
+                Website = team.Website,
+                PointCorrection = team.PointCorrection
+            };
+        }
+
     }
 }

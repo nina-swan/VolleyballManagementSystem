@@ -15,5 +15,26 @@ namespace Volleyball.DTO
         public string LastName { get; set; } = null!;
 
         public byte[]? Photo { get; set; }
+
+        public int? Height { get; set; }
+
+        public string PositionName { get; set; } = null!;   
+
+        public int? JerseyNumber { get; set; }
+
+        // Method to generate UserSummaryDto from User
+        public static UserSummaryDto GenerateUserSummaryDto(User user)
+        {
+            return new UserSummaryDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Photo = user.Photo,
+                Height = user.Height,
+                PositionName = user.Position != null ? user.Position.Name : "",
+                JerseyNumber = user.JerseyNumber
+            };
+        }
     }
 }
