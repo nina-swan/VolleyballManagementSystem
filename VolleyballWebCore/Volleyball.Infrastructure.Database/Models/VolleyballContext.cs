@@ -6,7 +6,9 @@ namespace Volleyball.Infrastructure.Database.Models;
 
 public partial class VolleyballContext : DbContext
 {
- 
+    public VolleyballContext() : base()
+    {
+    }
 
     public VolleyballContext(DbContextOptions<VolleyballContext> options)
         : base(options)
@@ -57,7 +59,10 @@ public partial class VolleyballContext : DbContext
 
     public virtual DbSet<Invitation> Invitations { get; set; }
 
- 
+    public virtual DbSet<Credentials> Credentials { get; set; }
+
+    public virtual DbSet<Role> Roles { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -70,7 +75,7 @@ public partial class VolleyballContext : DbContext
             entity.HasOne(d => d.Author).WithMany(p => p.Articles)
                .HasForeignKey(d => d.AuthorId)
                .OnDelete(DeleteBehavior.ClientSetNull);
-           
+
         });
 
         modelBuilder.Entity<Team>(entity =>
@@ -86,7 +91,7 @@ public partial class VolleyballContext : DbContext
             entity.HasOne(d => d.League).WithMany(p => p.Teams)
                 .HasForeignKey(d => d.LeagueId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
-             
+
         });
 
 
@@ -105,7 +110,7 @@ public partial class VolleyballContext : DbContext
             entity.HasOne(d => d.Player).WithMany(p => p.TeamPlayers)
                 .HasForeignKey(d => d.PlayerId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
-             
+
         });
 
         modelBuilder.Entity<TypedResult>(entity =>
@@ -118,7 +123,7 @@ public partial class VolleyballContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.TypedResults)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
-        
+
         });
 
         modelBuilder.Entity<Match>(entity =>
@@ -129,21 +134,21 @@ public partial class VolleyballContext : DbContext
 
             entity.HasOne(d => d.Mvp).WithMany(p => p.MVPMatches)
               .HasForeignKey(d => d.MvpId);
- 
+
             entity.HasOne(d => d.Referee).WithMany(p => p.RefereeMatches)
                 .HasForeignKey(d => d.RefereeId);
- 
+
             entity.HasOne(m => m.HomeTeam)
             .WithMany(t => t.HomeMatches)
             .HasForeignKey(m => m.HomeTeamId)
-            .OnDelete(DeleteBehavior.ClientSetNull); 
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
             entity.HasOne(m => m.GuestTeam)
             .WithMany(t => t.GuestMatches)
             .HasForeignKey(m => m.GuestTeamId)
-            .OnDelete(DeleteBehavior.ClientSetNull);  
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
- 
+
         });
 
         modelBuilder.Entity<ForumTopic>(entity =>
@@ -171,7 +176,7 @@ public partial class VolleyballContext : DbContext
             entity.HasOne(d => d.CommentLocation).WithMany(p => p.Comments)
                 .HasForeignKey(d => d.CommentLocationId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
-           
+
         });
 
         modelBuilder.Entity<Invitation>(entity =>
@@ -180,7 +185,7 @@ public partial class VolleyballContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.Invitations)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
-    
+
 
         });
 
@@ -194,6 +199,13 @@ public partial class VolleyballContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.PersonalLogs)
                 .HasForeignKey(d => d.UserId);
 
+        });
+
+        modelBuilder.Entity<Credentials>(entity =>
+        {
+            entity.HasOne(d => d.User).WithOne(p => p.Credentials)
+                         .HasForeignKey<Credentials>(d => d.UserId)
+                         .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
 

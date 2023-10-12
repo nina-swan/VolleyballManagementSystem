@@ -64,4 +64,6 @@ public partial class User
     public virtual ICollection<TypedResult> TypedResults { get; set; } = new List<TypedResult>();
 
     public virtual ICollection<Invitation> Invitations { get; set; } = new List<Invitation>();
+
+    public virtual Credentials? Credentials { get; set; } = null!;   
 }

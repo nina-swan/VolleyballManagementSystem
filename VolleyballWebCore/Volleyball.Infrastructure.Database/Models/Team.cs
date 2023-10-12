@@ -49,7 +49,7 @@ namespace Volleyball.Infrastructure.Database.Models
 
         public virtual User Captain { get; set; } = null!;
 
-        public virtual League League { get; set; } = null!;
+        public virtual League? League { get; set; } = null!;
 
  
         public ICollection<Match> HomeMatches { get; set; } = new List<Match>();
