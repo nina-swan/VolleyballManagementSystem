@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Volleyball.Infrastructure.Database.Models;
 
 namespace Volleyball.DTO
 {
@@ -12,5 +13,15 @@ namespace Volleyball.DTO
 
         public string Name { get; set; } = null!;
 
+
+        // Operator converting PositionDto to Position
+        public static implicit operator Position(PositionDto positionDto)
+        {
+            return new Position
+            {
+                Id = positionDto.Id,
+                Name = positionDto.Name
+            };
+        }
     }
 }

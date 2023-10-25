@@ -8,10 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="Pages\Login.razor" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Core" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="7.0.10" />
@@ -32,18 +28,6 @@
 
   <ItemGroup>
     <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <UpToDateCheckInput Remove="Pages\Login.razor" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <_ContentIncludedByDefault Remove="Pages\Login.razor" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Pages\Login.razor" />
   </ItemGroup>
 
 </Project>

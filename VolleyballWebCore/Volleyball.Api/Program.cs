@@ -15,12 +15,6 @@ builder.Services.AddDbContext<VolleyballContext>(options =>
 
 builder.Services.AddControllers();
 
-builder.Services.AddDbContext<VolleyballSysDbContext>(options =>
-{
-    options.ConfigureWarnings(warnings =>
-    warnings.Ignore(CoreEventId.NavigationBaseIncludeIgnored));
-});
-
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(

@@ -24,7 +24,8 @@ namespace VolleyballDomain.Shared.Services
         public async Task RegisterAsync(RegisterDto registerDto)
         {
             var user = ConvertToUser(registerDto);
-
+            //user.Position = new Position() { Id = registerDto.PositionId ?? 1 }; // TODO: Fix this
+            _context.Users.Add(user);
             var credentials = new Credentials
             {
                 Email = registerDto.Email,
@@ -37,9 +38,9 @@ namespace VolleyballDomain.Shared.Services
         }
 
         // Service to login a user
-        public async Task<bool> LoginAsync(LoginDto loginDto)
+        public bool Login(LoginDto loginDto, out Credentials? credentials)
         {
-            var credentials = await _context.Credentials.FirstOrDefaultAsync(c => c.Email == loginDto.Login);
+            credentials =  _context.Credentials.FirstOrDefault(c => c.Email == loginDto.Login);
             if (credentials == null)
                 return false;
             if (!VerifyPassword(loginDto.Login, loginDto.Password, credentials.Password))
@@ -164,7 +165,6 @@ namespace VolleyballDomain.Shared.Services
                 Articles = new List<Article>(),
                 Team = null,
                 TeamPlayers = new List<TeamPlayer>(), // Initialize as needed
-                Position = new Position { Id = registerDto.PositionId ?? 0 },
             };
         }
 
