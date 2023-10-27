@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Volleyball.DTO
 {
-    public class UserSummaryDto
+    public class PlayerSummaryDto
     {
         public int Id { get; set; }
 
@@ -23,9 +23,9 @@ namespace Volleyball.DTO
         public int? JerseyNumber { get; set; }
 
         // Method to generate UserSummaryDto from User
-        public static UserSummaryDto GenerateUserSummaryDto(User user)
+        public static PlayerSummaryDto GenerateUserSummaryDto(User user)
         {
-            return new UserSummaryDto
+            return new PlayerSummaryDto
             {
                 Id = user.Id,
                 FirstName = user.FirstName,

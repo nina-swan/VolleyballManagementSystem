@@ -217,14 +217,14 @@ else
     public MatchDto GetMatchData()
     {
         // Sample PlayerDto
-        var playerDto1 = new UserSummaryDto
+        var playerDto1 = new PlayerSummaryDto
             {
                 Id = 1,
                 FirstName = "John",
                 LastName = "Doe",
             };
 
-        var playerDto2 = new UserSummaryDto
+        var playerDto2 = new PlayerSummaryDto
             {
                 Id = 2,
                 FirstName = "Jane",
@@ -236,14 +236,14 @@ else
             {
                 Id = 101,
                 Name = "Team A",
-                Players = new List<UserSummaryDto> { playerDto1, playerDto1, playerDto1, playerDto1, playerDto1, playerDto2 },
+                Players = new List<PlayerSummaryDto> { playerDto1, playerDto1, playerDto1, playerDto1, playerDto1, playerDto2 },
             };
 
         var teamDto2 = new TeamDto
             {
                 Id = 102,
                 Name = "Team B",
-                Players = new List<UserSummaryDto> { playerDto2, playerDto1, playerDto1, playerDto2 },
+                Players = new List<PlayerSummaryDto> { playerDto2, playerDto1, playerDto1, playerDto2 },
             };
 
         // Sample MatchDto
@@ -262,14 +262,14 @@ else
                 Team1Score = 3,
                 Team2Score = 2,
                 RoundName = "Finals",
-                Referee = new UserSummaryDto
+                Referee = new PlayerSummaryDto
                 {
                     Id = 301,
                     FirstName = "Referee",
                     LastName = "Smith",
                 },
                 MatchInfo = "Sample match info",
-                MVP = new UserSummaryDto
+                MVP = new PlayerSummaryDto
                 {
                     Id = 401,
                     FirstName = "MVP",

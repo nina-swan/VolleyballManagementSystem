@@ -19,9 +19,9 @@ namespace Volleyball.DTO
 
         public LeagueDto? League { get; set; }
 
-        public UserSummaryDto Captain { get; set; } = null!;
+        public PlayerSummaryDto Captain { get; set; } = null!;
 
-        public List<UserSummaryDto> Players { get; set; } = null!;
+        public List<PlayerSummaryDto> Players { get; set; } = null!;
 
         public string Email { get; set; } = null!;
 
@@ -47,8 +47,8 @@ namespace Volleyball.DTO
                 CreationDate = team.CreationDate,
                 Image = team.Image,
                 League = LeagueDto.GenerateLeagueDto(team.League),
-                Captain = UserSummaryDto.GenerateUserSummaryDto(team.Captain),
-                Players = team.TeamPlayers.Select(p => UserSummaryDto.GenerateUserSummaryDto(p.Player)).ToList(),
+                Captain = PlayerSummaryDto.GenerateUserSummaryDto(team.Captain),
+                Players = team.TeamPlayers.Select(p => PlayerSummaryDto.GenerateUserSummaryDto(p.Player)).ToList(),
                 Email = team.Email,
                 Logo = team.Logo,
                 Photo = team.Image,

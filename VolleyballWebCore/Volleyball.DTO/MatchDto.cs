@@ -28,11 +28,11 @@ namespace Volleyball.DTO
 
         public string? RoundName { get; set; }
 
-        public UserSummaryDto? Referee { get; set; }
+        public PlayerSummaryDto? Referee { get; set; }
 
         public string? MatchInfo { get; set; }
 
-        public UserSummaryDto MVP { get; set; } = null!;
+        public PlayerSummaryDto MVP { get; set; } = null!;
 
         public int? Set1Team1Score { get; set; }
 

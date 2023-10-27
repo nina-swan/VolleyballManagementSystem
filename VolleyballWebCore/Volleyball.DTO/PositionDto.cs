@@ -13,8 +13,6 @@ namespace Volleyball.DTO
 
         public string Name { get; set; } = null!;
 
-
-        // Operator converting PositionDto to Position
         public static implicit operator Position(PositionDto positionDto)
         {
             return new Position

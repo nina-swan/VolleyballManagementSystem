@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Volleyball.DTO;
 using Volleyball.Infrastructure.Database.Models;
+using VolleyballDomain.Shared;
 
 namespace Volleyball.DbServices.Services
 {
@@ -29,39 +30,85 @@ namespace Volleyball.DbServices.Services
             return await context.Positions.ToListAsync();
         }
 
-        public async Task<Position> GetPositionByIdAsync(int id)
+        public async Task<ServiceResponse<Position>> GetPositionByIdAsync(int id)
         {
-            return await context.Positions.FirstOrDefaultAsync(p => p.Id == id);
-        }
+            var response = new ServiceResponse<Position>();
 
-        public async Task CreatePosition(PositionDto position)
-        {
-            context.Positions.Add(position);
-            await context.SaveChangesAsync();
-        }
-
-        public async Task UpdatePosition(int id, PositionDto updatedPosition)
-        {
-            var position = await context.Positions.FirstOrDefaultAsync(p => p.Id == id);
-            if (position == null)
+            var position =  await context.Positions.FirstOrDefaultAsync(p => p.Id == id);
+            if(position == null)
             {
-                throw new InvalidOperationException("Position not found");
+                return new ServiceResponse<Position>
+                {
+                    Success = false,
+                    Message = "Position not found"
+                };
             }
 
-            position.Name = updatedPosition.Name;
-            await context.SaveChangesAsync();
+            response.Data = position;
+            return response;
         }
 
-        public async Task DeletePosition(int id)
+        public async Task<ServiceResponse> CreatePosition(PositionDto position)
         {
-            var position = await context.Positions.FirstOrDefaultAsync(p => p.Id == id);
-            if (position == null)
+            var response = new ServiceResponse();
+            try
             {
-                throw new InvalidOperationException("Position not found");
+                context.Positions.Add((Position)position);
+                await context.SaveChangesAsync();
+            } catch (Exception e)
+            {
+                response.Success = false;
+                response.Message = e.Message;
             }
 
-            context.Positions.Remove(position);
-            await context.SaveChangesAsync();
+            return response;
+        }
+
+        public async Task<ServiceResponse> UpdatePosition(int id, PositionDto updatedPosition)
+        {
+            var result = new ServiceResponse();
+            try
+            {
+                var position = await context.Positions.FirstOrDefaultAsync(p => p.Id == id);
+                if (position == null)
+                {
+                    result.Success = false;
+                    result.Message = "Position not found";
+                    return result;
+                }
+
+                position.Name = updatedPosition.Name;
+                await context.SaveChangesAsync();
+            } catch (Exception e)
+            {
+                result.Success = false;
+                result.Message = e.Message;
+            }
+
+            return result;
+        }
+
+        public async Task<ServiceResponse> DeletePosition(int id)
+        {
+            var result = new ServiceResponse();
+            try
+            {
+                var position = await context.Positions.FirstOrDefaultAsync(p => p.Id == id);
+                if (position == null)
+                {
+                    result.Success = false;
+                    result.Message = "Position not found";
+                    return result;
+                }
+
+                context.Positions.Remove(position);
+                await context.SaveChangesAsync();
+            } catch (Exception e)
+            {
+                result.Success = false;
+                result.Message = e.Message;
+            }
+            return result;
         }
     }
 }
