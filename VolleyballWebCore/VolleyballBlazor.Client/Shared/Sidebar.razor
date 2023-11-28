@@ -1,25 +1,52 @@
-﻿
-
+﻿@inject IUserService userService
+@inject HttpClient Http
+@inject AuthenticationStateProvider AuthenticationStateProvider
 <div class="widget">
-    <div class="card p-3 m-3 navbar-inverse">
-        <div class="card-body">
-            <h6 class="card-title">Jesteś zalogowany jako:</h6>
+    <AuthorizeView>
+        <Authorized>
+            <div class="card p-3 m-3 navbar-inverse">
+                <div class="card-body">
+                    <h6 class="card-title">Jesteś zalogowany jako:</h6>
 
-            <NavLink class="card-link text-secondary" href="/user-profile/1">Imię Nazwisko</NavLink>
-        </div>
-    </div>
+                    <NavLink class="card-link text-secondary" href="/user-profile/1">@playerSummary.FirstName @playerSummary.LastName</NavLink>
+                </div>
+            </div>
 
-    <div class="card m-3 p-3 navbar-inverse">
-        <div class="card-body">
-            <h6 class="card-title">Twój najbliższy mecz:</h6>
+            <div class="card m-3 p-3 navbar-inverse">
+                <div class="card-body">
+                    <h6 class="card-title">Twój najbliższy mecz:</h6>
 
-            <p class="card-text">Brak!</p>
-        </div>
-    </div>
+                    <p class="card-text">Brak!</p>
+                </div>
+            </div>
+        </Authorized>
+    </AuthorizeView>
 </div>
 
 
 
 @code {
+    PlayerSummaryDto playerSummary = new PlayerSummaryDto();
 
+    protected override async Task OnInitializedAsync()
+    {
+        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+        var user = authenticationState.User;
+
+        if (user.Identity != null && user.Identity.IsAuthenticated)
+        {
+            Console.WriteLine("User is authenticated");
+            var response = await userService.GetUserSummary();
+            playerSummary = response.Data;
+            //var result = await Http.GetAsync("https://localhost:7213/api/usersummary");
+            //Console.WriteLine(await result.Content.ReadAsStringAsync());
+        }
+        else
+        {
+            // User is not authenticated
+            Console.WriteLine("User is not authenticated");
+        }
+
+    }
 }

@@ -15,6 +15,17 @@ namespace Volleyball.DTO
 
         public DateTime CreationDate { get; set; }
 
-        public virtual AuthorInfoDto Author { get; set; } = null!;
+        public AuthorInfoDto Author { get; set; } = null!;
+
+        public static explicit operator CommentDto(Comment comment)
+        {
+            return new CommentDto
+            {
+                Id = comment.Id,
+                Content = comment.Content,
+                CreationDate = comment.CreationDate,
+                Author = (AuthorInfoDto)comment.Author,
+            };
+        }
     }
 }

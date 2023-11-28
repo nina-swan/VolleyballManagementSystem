@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Volleyball.Infrastructure.Database.Models;
 
@@ -11,9 +12,11 @@ using Volleyball.Infrastructure.Database.Models;
 namespace Volleyball.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(VolleyballContext))]
-    partial class VolleyballContextModelSnapshot : ModelSnapshot
+    [Migration("20231025154932_AddCredentialsAndRoles")]
+    partial class AddCredentialsAndRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -547,23 +550,6 @@ namespace Volleyball.Infrastructure.Database.Migrations
                     b.HasKey("RoleId");
 
                     b.ToTable("Roles");
-
-                    b.HasData(
-                        new
-                        {
-                            RoleId = 1,
-                            Name = "Player"
-                        },
-                        new
-                        {
-                            RoleId = 2,
-                            Name = "Arbiter"
-                        },
-                        new
-                        {
-                            RoleId = 3,
-                            Name = "Admin"
-                        });
                 });
 
             modelBuilder.Entity("Volleyball.Infrastructure.Database.Models.Round", b =>

@@ -1,7 +1,7 @@
 ﻿@inject HttpClient Http
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject AuthenticationStateProvider authStateProvider
-@inject UserService userService
+@inject IUserService userService
 
 
 @using System.Text.Json
@@ -9,8 +9,8 @@
 
 @page "/login"
 
-<PageTitle>Login</PageTitle>
-<h3>Login</h3>
+<PageTitle>Logowanie</PageTitle>
+<h3>Logowanie</h3>
 
 @if (ShowAuthError)
 {
@@ -21,7 +21,7 @@
 
 <EditForm Model="user" OnValidSubmit="ExecuteLogin" class="card card-body bg-light mt-5">
     <DataAnnotationsValidator />
-    <fieldset disabled="@disabled">
+    <fieldset disabled="@IsLoading">
         <div class="form-group col">
             <label for="email" class="col-md-2 col-form-label">Email:</label>
             <div class="col-md-10">
@@ -31,7 +31,7 @@
         </div>
 
         <div class="form-group col">
-            <label for="password" class="col-md-2 col-form-label">Password:</label>
+            <label for="password" class="col-md-2 col-form-label">Hasło:</label>
 
             <div class="col-md-10">
                 <InputText type="password" id="password" class="form-control" @bind-Value="user.Password" />
@@ -40,8 +40,15 @@
         </div>
 
         <div class="row mt-2">
-            <div class="col-md-12 text-right">
-                <button type="submit" class="btn btn-success">Login</button>
+            <div class="col-md-12 text-center">
+                @if (!IsLoading)
+                {
+                    <button type="submit" class="btn btn-success">Login</button>
+                }
+                else
+                {
+                    <LoadingIcon />
+                }
             </div>
         </div>
     </fieldset>
@@ -55,25 +62,31 @@
     public NavigationManager NavigationManager { get; set; }
     public bool ShowAuthError { get; set; }
     public string Error { get; set; }
-    private bool disabled;
+    public bool IsLoading { get; set; }
 
     public async System.Threading.Tasks.Task ExecuteLogin()
     {
-        disabled = true;
         ShowAuthError = false;
+        IsLoading = true;
 
         var content = JsonSerializer.Serialize(user);
         var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
 
         var authResult = await userService.Login(user);
-        
-        // if(authResult.Result != )
 
-        // await localStorage.SetItemAsync("authToken", result);
-        // ((AuthStateProvider)authStateProvider).NotifyUserAuthentication(result);
+        if (authResult.Success)
+        {
+            await localStorage.SetItemAsync("authToken", authResult.Data);
+            ((AuthStateProvider)authStateProvider).NotifyUserAuthentication(authResult.Data);
+            Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", authResult.Data);
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            Error = authResult.Message;
+            ShowAuthError = true;
+        }
 
-        // Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", result);
-
-        NavigationManager.NavigateTo("/");
+        IsLoading = false;
     }
 }

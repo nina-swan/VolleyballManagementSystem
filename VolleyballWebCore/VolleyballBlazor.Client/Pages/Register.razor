@@ -3,187 +3,229 @@
 @using Volleyball.DTO
 @inject UserService UserService
 
-<h3>Rejestracja Użytkownika</h3>
+<h3>Rejestracja</h3>
 
-<EditForm Model="@registerModel" OnValidSubmit="HandleValidSubmit">
+<div class="m-2">
+    @if (!IsSubmitted)
+    {
 
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+        <EditForm Model="@registerModel" OnValidSubmit="HandleValidSubmit">
 
-    <div class="form-group row col-xs-2">
-        <label class="col-sm-2 col-form-label" for="FirstName">Imię:</label>
-        <div class="col-sm-10">
-            <InputText class="form-control" id="FirstName" @bind-Value="registerModel.FirstName" />
-        </div>
-        <ValidationMessage For="@(() => registerModel.FirstName)" />
-    </div>
+            <DataAnnotationsValidator />
 
-    <div class="form-group row">
-        <label class="col-sm-2 col-form-label" for="LastName">Nazwisko:</label>
-        <div class="col-sm-10">
-            <InputText class="form-control" id="LastName" @bind-Value="registerModel.LastName" />
-        </div>
-        <ValidationMessage For="@(() => registerModel.LastName)" />
-    </div>
+            <div class="form-group row col-xs-2">
+                <label class="col-sm-2 col-form-label" for="FirstName">Imię:</label>
+                <div class="col-sm-10">
+                    <InputText class="form-control" id="FirstName" @bind-Value="registerModel.FirstName" />
+                    <ValidationMessage class="text-danger" For="@(() => registerModel.FirstName)" />
+                </div>
+            </div>
 
-    <div class="form-group row">
-        <label class="col-sm-2 col-form-label" for="Email">Adres e-mail:</label>
-        <div class="col-sm-10">
-            <InputText class="form-control" id="Email" @bind-Value="registerModel.Email" />
-        </div>
-        <ValidationMessage For="@(() => registerModel.Email)" />
-    </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label" for="LastName">Nazwisko:</label>
+                <div class="col-sm-10">
+                    <InputText class="form-control" id="LastName" @bind-Value="registerModel.LastName" />
+                    <ValidationMessage class="text-danger sm" For="@(() => registerModel.LastName)" />
+                </div>
+            </div>
 
-    <div class="form-group row">
-        <label class="col-sm-2 col-form-label" for="Password">Hasło:</label>
-        <div class="col-sm-10">
-            <InputText class="form-control" id="Password" type="password" @bind-Value="registerModel.Password" />
-        </div>
-        <ValidationMessage For="@(() => registerModel.Password)" />
-    </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label" for="Email">Adres e-mail:</label>
+                <div class="col-sm-10">
+                    <InputText class="form-control" id="Email" @bind-Value="registerModel.Email" />
+                    <ValidationMessage class="text-danger" For="@(() => registerModel.Email)" />
+                </div>
+            </div>
 
-    <div class="form-group row">
-        <label class="col-sm-2 col-form-label" for="PositionId">Pozycja:</label>
-        <div class="col-sm-10">
-            <select id="PositionId" @bind="registerModel.PositionId">
-                @foreach (var position in GetAllPositions())
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label" for="Password">Hasło:</label>
+                <div class="col-sm-10">
+                    <InputText class="form-control" id="Password" type="password" @bind-Value="registerModel.Password" />
+                    <ValidationMessage class="text-danger" For="@(() => registerModel.Password)" />
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label" for="PositionId">Pozycja:</label>
+                <div class="col-sm-10">
+                    <InputSelect id="PositionId" @bind-Value="registerModel.PositionId">
+                        @foreach (var position in Positions)
+                        {
+                            <option value="@position.Id">@position.Name</option>
+                        }
+                    </InputSelect>
+                </div>
+                <ValidationMessage For="@(() => registerModel.PositionId)" />
+            </div>
+
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label" for="PhoneNumber">Numer telefonu:</label>
+                <div class="col-sm-10">
+                    <InputText class="form-control" id="PhoneNumber" @bind-Value="registerModel.PhoneNumber" />
+                    <ValidationMessage For="@(() => registerModel.PhoneNumber)" />
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label" for="BirthYear">Rok urodzenia:</label>
+
+                <div class="col-sm-2">
+                    <InputNumber class="form-control" id="BirthYear" @bind-Value="registerModel.BirthYear" />
+
+                    <ValidationMessage For="@(() => registerModel.BirthYear)" />
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label" for="Height">Wzrost:</label>
+                <div class="col-sm-2">
+                    <InputNumber class="form-control" id="Height" @bind-Value="registerModel.Height" />
+                    <ValidationMessage For="@(() => registerModel.Height)" />
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label" for="Weight">Waga:</label>
+                <div class="col-sm-2">
+                    <InputNumber class="form-control" id="Weight" @bind-Value="registerModel.Weight" />
+                    <ValidationMessage For="@(() => registerModel.Weight)" />
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label" for="Hobby">Hobby:</label>
+                <div class="col-sm-10">
+                    <InputTextArea class="form-control" id="Hobby" @bind-Value="registerModel.Hobby" rows="4" />
+                    <ValidationMessage For="@(() => registerModel.Hobby)" />
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label" for="JerseyNumber">Numer koszulki:</label>
+                <div class="col-sm-2">
+                    <InputNumber class="form-control" id="JerseyNumber" @bind-Value="registerModel.JerseyNumber" />
+                    <ValidationMessage For="@(() => registerModel.JerseyNumber)" />
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label" for="BlockRange">Zasięg bloku:</label>
+                <div class="col-sm-2">
+                    <InputNumber class="form-control" id="BlockRange" @bind-Value="registerModel.BlockRange" />
+                    <ValidationMessage For="@(() => registerModel.BlockRange)" />
+                </div>
+            </div>
+
+            <div class="form-group row">
+
+                <label class="col-sm-2 col-form-label" for="AttackRange">Zasięg ataku:</label>
+                <div class="col-sm-2">
+                    <InputNumber class="form-control" id="AttackRange" @bind-Value="registerModel.AttackRange" />
+                    <ValidationMessage For="@(() => registerModel.AttackRange)" />
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label" for="VolleyballIdol">Idol siatkówki:</label>
+
+                <div class="col-sm-10">
+                    <InputText class="form-control" id="VolleyballIdol" @bind-Value="registerModel.VolleyballIdol" />
+                    <ValidationMessage For="@(() => registerModel.VolleyballIdol)" />
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label" for="AdditionalEmail">Dodatkowy e-mail:</label>
+                <div class="col-sm-10">
+                    <InputText class="form-control" id="AdditionalEmail" @bind-Value="registerModel.AdditionalEmail" />
+                    <ValidationMessage For="@(() => registerModel.AdditionalEmail)" />
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label" for="PersonalInfo">Informacje osobiste:</label>
+                <div class="col-sm-10">
+                    <InputTextArea class="form-control" id="PersonalInfo" @bind-Value="registerModel.PersonalInfo" rows="6" />
+                    <ValidationMessage For="@(() => registerModel.PersonalInfo)" />
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label" for="City">Miasto:</label>
+                <div class="col-sm-10">
+                    <InputText class="form-control" id="City" @bind-Value="registerModel.City" />
+                    <ValidationMessage For="@(() => registerModel.City)" />
+                </div>
+            </div>
+            <div class="d-flex flex-column align-items-center">
+                @if (IsLoading)
                 {
-                    <option value="@position.Id">@position.Name</option>
+                    <LoadingIcon></LoadingIcon>
                 }
-            </select>
-        </div>
-        <ValidationMessage For="@(() => registerModel.PositionId)" />
-    </div>
+                else
+                {
+                    @if (ShowErrorMessage)
+                    {
+                        <p class="text-danger">@ErrorMessage </p> <br />
+                    }
+                    <button type="submit" class="btn btn-primary col-sm-3">Zarejestruj</button>
 
-    <div class="form-group row">
-        <label class="col-sm-2 col-form-label" for="Address">Adres:</label>
-        <div class="col-sm-10">
-            <InputText class="form-control" id="Address" @bind-Value="registerModel.Address" />
+                }
 
-        </div>
-        <ValidationMessage For="@(() => registerModel.Address)" />
-    </div>
-
-    <div class="form-group row">
-        <label class="col-sm-2 col-form-label" for="PhoneNumber">Numer telefonu:</label>
-        <div class="col-sm-10">
-            <InputText class="form-control" id="PhoneNumber" @bind-Value="registerModel.PhoneNumber" />
-        </div>
-        <ValidationMessage For="@(() => registerModel.PhoneNumber)" />
-    </div>
-
-    <div class="form-group row">
-        <label class="col-sm-2 col-form-label" for="BirthYear">Rok urodzenia:</label>
-
-        <div class="col-sm-10">
-            <InputNumber class="form-control" id="BirthYear" @bind-Value="registerModel.BirthYear" min="1900" max="2030" />
-        </div>
-        <ValidationMessage For="@(() => registerModel.BirthYear)" />
-    </div>
-
-    <div class="form-group row">
-        <label class="col-sm-2 col-form-label" for="Height">Wzrost:</label>
-        <div class="col-sm-10">
-            <InputNumber class="form-control" id="Height" @bind-Value="registerModel.Height" />
-        </div>
-        <ValidationMessage For="@(() => registerModel.Height)" />
-    </div>
-
-    <div class="form-group row">
-        <label class="col-sm-2 col-form-label" for="Weight">Waga:</label>
-        <div class="col-sm-10">
-            <InputNumber class="form-control" id="Weight" @bind-Value="registerModel.Weight" />
-        </div>
-        <ValidationMessage For="@(() => registerModel.Weight)" />
-    </div>
-
-    <div class="form-group row">
-        <label class="col-sm-2 col-form-label" for="Hobby">Hobby:</label>
-        <div class="col-sm-10">
-            <InputTextArea class="form-control" id="Hobby" @bind-Value="registerModel.Hobby" rows="4" />
-        </div>
-        <ValidationMessage For="@(() => registerModel.Hobby)" />
-    </div>
-
-    <div class="form-group row">
-        <label class="col-sm-2 col-form-label" for="JerseyNumber">Numer koszulki:</label>
-        <div class="col-sm-10">
-            <InputNumber class="form-control" id="JerseyNumber" @bind-Value="registerModel.JerseyNumber" />
-        </div>
-        <ValidationMessage For="@(() => registerModel.JerseyNumber)" />
-    </div>
-
-    <div class="form-group row">
-        <label class="col-sm-2 col-form-label" for="BlockRange">Zasięg bloku:</label>
-        <div class="col-sm-10">
-            <InputNumber class="form-control" id="BlockRange" @bind-Value="registerModel.BlockRange" />
-        </div>
-        <ValidationMessage For="@(() => registerModel.BlockRange)" />
-    </div>
-
-    <div class="form-group row">
-
-        <label class="col-sm-2 col-form-label" for="AttackRange">Zasięg ataku:</label>
-        <div class="col-sm-10">
-            <InputNumber class="form-control" id="AttackRange" @bind-Value="registerModel.AttackRange" />
-        </div>
-        <ValidationMessage For="@(() => registerModel.AttackRange)" />
-    </div>
-
-    <div class="form-group row">
-        <label class="col-sm-2 col-form-label" for="VolleyballIdol">Idol siatkówki:</label>
-
-        <div class="col-sm-10">
-            <InputText class="form-control" id="VolleyballIdol" @bind-Value="registerModel.VolleyballIdol" />
-        </div>
-        <ValidationMessage For="@(() => registerModel.VolleyballIdol)" />
-    </div>
-
-    <div class="form-group row">
-        <label class="col-sm-2 col-form-label" for="AdditionalEmail">Dodatkowy e-mail:</label>
-        <div class="col-sm-10">
-            <InputText class="form-control" id="AdditionalEmail" @bind-Value="registerModel.AdditionalEmail" />
-        </div>
-        <ValidationMessage For="@(() => registerModel.AdditionalEmail)" />
-    </div>
-
-    <div class="form-group row">
-        <label class="col-sm-2 col-form-label" for="PersonalInfo">Informacje osobiste:</label>
-        <div class="col-sm-10">
-            <InputTextArea class="form-control" id="PersonalInfo" @bind-Value="registerModel.PersonalInfo" rows="6" />
-        </div>
-        <ValidationMessage For="@(() => registerModel.PersonalInfo)" />
-    </div>
-
-    <div class="form-group row">
-        <label class="col-sm-2 col-form-label" for="City">Miasto:</label>
-        <div class="col-sm-10">
-            <InputText class="form-control" id="City" @bind-Value="registerModel.City" />
-        </div>
-        <ValidationMessage For="@(() => registerModel.City)" />
-    </div>
-
-    <button type="submit" class="btn btn-primary">Zarejestruj</button>
-
-</EditForm>
+            </div>
+        </EditForm>
+    }
+    else
+    {
+        <h3>Zarejestrowano pomyślnie!</h3>
+        <p><a href="/login">Zaloguj się</a></p>
+    }
+</div>
 
 @code {
     private RegisterDto registerModel = new RegisterDto();
 
-    private async Task HandleValidSubmit()
+    private bool IsLoading = false;
+
+    private bool IsSubmitted = false;
+
+    private bool ShowErrorMessage = false;
+
+    private string ErrorMessage = "";
+
+    private List<PositionDto> Positions = new List<PositionDto>();
+
+    protected override async Task OnInitializedAsync()
     {
-        await UserService.Register(registerModel);
+        Positions = new List<PositionDto>() { new PositionDto { Id = 1, Name = "Ładowanie pozycji..." } };
+
+        var positionResult = await UserService.GetPositions();
+
+        if (positionResult.Success)
+        {
+            Positions = positionResult.Data!;
+        }
+        else
+        {
+            Positions = new List<PositionDto>() { new PositionDto { Id = 1, Name = positionResult.Message } };
+        }
     }
 
-    private List<PositionDto> GetAllPositions()
+    private async Task HandleValidSubmit()
     {
-        // Replace this with your logic to fetch positions
-        // Returns a list of positions with Id and Name properties
-        return new List<PositionDto>
+        ShowErrorMessage = false;
+        IsLoading = true;
+        await Task.Delay(1000);
+        var result = await UserService.Register(registerModel);
+        IsLoading = false;
+        if (result.Success)
         {
-            new PositionDto { Id = 1, Name = "Position 1" },
-            new PositionDto { Id = 2, Name = "Position 2" },
-            // Add more positions
-        };
+            IsSubmitted = true;
+        }
+        else
+        {
+            ShowErrorMessage = true;
+            ErrorMessage = result.Message;
+        }
     }
 }

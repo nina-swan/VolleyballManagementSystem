@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+
 
 namespace Volleyball.DTO
 {
@@ -26,5 +28,33 @@ namespace Volleyball.DTO
         public string? PositionName { get; set; }
 
         public string? Roles { get; set; }
+
+        public List<CommentDto> Comments { get; set; }
+
+        // cast operator User to UserProfileDto
+        public static explicit operator UserProfileDto(User user)
+        {
+            return new UserProfileDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                BirthYear = user.BirthYear,
+                City = user.City,
+                PersonalInfo = user.PersonalInfo,
+                Gender = user.Gender,
+                Photo = user.Photo,
+                Height = user.Height,
+                Weight = user.Weight,
+                JerseyNumber = user.JerseyNumber,
+                BlockRange = user.BlockRange,
+                AttackRange = user.AttackRange,
+                VolleyballIdol = user.VolleyballIdol,
+                Hobby = user.Hobby,
+                PositionName = user.Position?.Name,
+                Comments = user.Comments.Select(c => (CommentDto)c).ToList(),
+            };
+        }
+
     }
 }

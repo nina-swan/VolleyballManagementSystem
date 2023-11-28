@@ -21,5 +21,14 @@ namespace Volleyball.DTO
                 Name = positionDto.Name
             };
         }
+
+        public static explicit operator PositionDto(Position position)
+        {
+            return new PositionDto
+            {
+                Id = position.Id,
+                Name = position.Name
+            };
+        }
     }
 }

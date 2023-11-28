@@ -25,17 +25,29 @@ namespace Volleyball.DbServices.Services
             this.context = context;
         }
 
-        public async Task<List<Position>> GetAllPositionsAsync()
+        public async Task<ServiceResponse<List<PositionDto>>> GetAllPositionsAsync()
         {
-            return await context.Positions.ToListAsync();
+            var response = new ServiceResponse<List<PositionDto>>();
+
+            try
+            {
+                response.Data = (await context.Positions.ToListAsync()).Select(p => (PositionDto)p).ToList();
+            }
+            catch (Exception e)
+            {
+                response.Success = false;
+                response.Message = e.Message;
+            }
+
+            return response;
         }
 
         public async Task<ServiceResponse<Position>> GetPositionByIdAsync(int id)
         {
             var response = new ServiceResponse<Position>();
 
-            var position =  await context.Positions.FirstOrDefaultAsync(p => p.Id == id);
-            if(position == null)
+            var position = await context.Positions.FirstOrDefaultAsync(p => p.Id == id);
+            if (position == null)
             {
                 return new ServiceResponse<Position>
                 {
@@ -55,7 +67,8 @@ namespace Volleyball.DbServices.Services
             {
                 context.Positions.Add((Position)position);
                 await context.SaveChangesAsync();
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 response.Success = false;
                 response.Message = e.Message;
@@ -79,7 +92,8 @@ namespace Volleyball.DbServices.Services
 
                 position.Name = updatedPosition.Name;
                 await context.SaveChangesAsync();
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 result.Success = false;
                 result.Message = e.Message;
@@ -103,7 +117,8 @@ namespace Volleyball.DbServices.Services
 
                 context.Positions.Remove(position);
                 await context.SaveChangesAsync();
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 result.Success = false;
                 result.Message = e.Message;

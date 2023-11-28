@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Volleyball.Infrastructure.Database.Models;
@@ -24,19 +25,20 @@ namespace Volleyball.DTO
         [MinLength(8, ErrorMessage = "Hasło musi mieć co najmniej 8 znaków.")]
         public string Password { get; set; }
 
-        public int? PositionId { get; set; }
+        public int PositionId { get; set; }
 
         public bool Gender { get; set; }
-
-        public string? Address { get; set; }
 
         [Phone(ErrorMessage = "Niepoprawny format numeru telefonu.")]
         public string? PhoneNumber { get; set; }
 
+        [Range(1900, 2023, ErrorMessage = "Podaj poprawny rok urodzenia.")]
         public int? BirthYear { get; set; }
 
+        [Range(50, 250, ErrorMessage = "Podaj prawidłowy wzrost w centymetrach")]
         public int? Height { get; set; }
 
+        [Range(20, 500, ErrorMessage = "Podaj prawidłową wagę w kilogramach")]
         public int? Weight { get; set; }
 
         public string? Hobby { get; set; }

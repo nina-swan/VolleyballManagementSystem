@@ -6,6 +6,7 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 using Volleyball.DTO;
+using VolleyballDomain.Shared;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace VolleyballBlazor.Infrastructure.Client.Services
@@ -13,62 +14,96 @@ namespace VolleyballBlazor.Infrastructure.Client.Services
     public interface IUserService
     {
         Task<ApiResponse> Register(RegisterDto registerDto);
-        Task<ApiResponse<bool>> Login(LoginDto loginDto);
+        Task<ApiResponse<string>> Login(LoginDto loginDto);
         Task UpdatePassword(string userId, UpdatePasswordDto updatePasswordDto);
+        Task<ApiResponse<List<PositionDto>>> GetPositions();
+        Task<ApiResponse<PlayerSummaryDto>> GetUserSummary();
     }
 
     public class UserService : IUserService
     {
         private HttpClient _httpClient;
 
-        public UserService() {
-            _httpClient = new HttpClient
-            {
-                // development address 
-                BaseAddress = new Uri("https://localhost:5134/")
-            };
-        }
-
-        public UserService(string baseAddress)
+        public UserService(HttpClient httpClient)
         {
-            _httpClient = new HttpClient
-            {
-                BaseAddress = new Uri(baseAddress)
-            };
-        }
+            _httpClient = httpClient;
+            //_httpClient.BaseAddress = new Uri("https://localhost:7213/");
+        }   
 
         public async Task<ApiResponse> Register(RegisterDto registerDto)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/user/register", registerDto);
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync("api/user/register", registerDto);
+                return new ApiResponse(response);
+            }
+            catch (HttpRequestException)
+            {
+                return ApiResponse.NetworkErrorResponse;
+            }
+        }
 
-            return new ApiResponse(response);
+        public async Task<ApiResponse<string>> Login(LoginDto loginDto)
+        {
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync("api/user/login", loginDto);
+                return new ApiResponse<string>(response);
+            }
+            catch
+            {
+                return ApiResponse<string>.NetworkErrorResponse;
+            }
 
         }
 
-        public async Task<ApiResponse<bool>> Login(LoginDto loginDto)
+        public async Task<ApiResponse<List<PositionDto>>> GetPositions()
         {
-            var response = await _httpClient.PostAsJsonAsync("api/user/login", loginDto);
-
-            ApiResponse<bool> apiResponse = new(response.IsSuccessStatusCode, response);    
-
-            if (!response.IsSuccessStatusCode)
+            try
             {
-                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                using (var response = await _httpClient.GetAsync("api/position"))
                 {
-                    apiResponse.Message = "Wrong username or password";
-                }
-                else if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
-                {
-                    apiResponse.Message = "Too many failed login attempts. Your account is blocked for 5 minutes";
-                }
-                else
-                {
-                    apiResponse.Message = "Server error. Try again later";
+                    return new ApiResponse<List<PositionDto>>(response);
                 }
             }
-            return apiResponse;
+            catch
+            {
+                return ApiResponse<List<PositionDto>>.NetworkErrorResponse;
+            }
         }
 
+        public async Task<ApiResponse<PlayerSummaryDto>> GetUserSummary()
+        {
+            try
+            {
+                using (var response = await _httpClient.GetAsync("api/usersummary"))
+                {
+                    return new ApiResponse<PlayerSummaryDto>(response);
+                }
+            }
+            catch
+            {
+                return ApiResponse<PlayerSummaryDto>.NetworkErrorResponse;
+            }
+        }
+
+        // get user profile
+        public async Task<ApiResponse<UserProfileDto>> GetUserProfile(int userId)
+        {
+            try
+            {
+                using (var response = await _httpClient.GetAsync($"api/userprofile/{userId}"))
+                {
+                    return new ApiResponse<UserProfileDto>(response);
+                }
+            }
+            catch
+            {
+                return ApiResponse<UserProfileDto>.NetworkErrorResponse;
+            }
+        }
+
+        // TODO
         public async Task UpdatePassword(string userId, UpdatePasswordDto updatePasswordDto)
         {
             await _httpClient.PostAsJsonAsync($"api/user/{userId}/updatePassword", updatePasswordDto);

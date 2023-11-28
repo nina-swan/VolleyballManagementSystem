@@ -3,6 +3,7 @@ using Volleyball.Infrastructure.Database.Models;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.IdentityModel.Tokens.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,24 +40,27 @@ builder.Services.AddAuthentication(options =>
         //RoleClaimType = "role",
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey
-        (Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
-        ValidateIssuer = true,
+        ClockSkew = TokenValidationParameters.DefaultClockSkew,
         ValidateAudience = true,
-        ValidateLifetime = true,
+        ValidateIssuer = true,
         ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
     };
+
 });
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
+//builder.Services.AddAuthorization();    
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
 app.UseHttpsRedirection();
+app.UseCors();
 
+app.UseAuthentication();    
 app.UseAuthorization();
-
 app.MapControllers();
 
-app.UseCors();
 app.Run();

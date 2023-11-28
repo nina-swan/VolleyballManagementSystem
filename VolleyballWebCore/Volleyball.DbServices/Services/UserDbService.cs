@@ -15,63 +15,97 @@ namespace VolleyballDomain.Shared.Services
     {
         private readonly VolleyballContext _context;
         private readonly PasswordHasher<string> passwordHasher = new PasswordHasher<string>();
-        public UserDbService() {
+        public UserDbService()
+        {
             _context = new VolleyballContext();
 
         }
 
         // Service to register a new user
-        public async Task RegisterAsync(RegisterDto registerDto)
+        public async Task<ServiceResponse> RegisterAsync(RegisterDto registerDto)
         {
+            var response = new ServiceResponse();
+
             var user = ConvertToUser(registerDto);
-            //user.Position = new Position() { Id = registerDto.PositionId ?? 1 }; // TODO: Fix this
+
             _context.Users.Add(user);
             var credentials = new Credentials
             {
                 Email = registerDto.Email,
                 Password = HashPassword(registerDto.Email, registerDto.Password), // Hash the password
-                User = user
+                User = user,
+                Roles = new List<Role> { new Role { Name = Roles.Player } }
+
             };
 
             _context.Credentials.Add(credentials);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                response.Success = false;
+                response.Message = e.Message;
+            }
+            return response;
         }
 
         // Service to login a user
-        public bool Login(LoginDto loginDto, out Credentials? credentials)
+        public ServiceResponse Login(LoginDto loginDto, out Credentials? credentials)
         {
-            credentials =  _context.Credentials.FirstOrDefault(c => c.Email == loginDto.Login);
-            if (credentials == null)
-                return false;
-            if (!VerifyPassword(loginDto.Login, loginDto.Password, credentials.Password))
-                return false;
-            return true;
+            var response = new ServiceResponse<List<Role>>();
+            credentials = _context.Credentials.Include(c => c.Roles).FirstOrDefault(c => c.Email == loginDto.Login);
+
+
+            if (credentials == null || !VerifyPassword(loginDto.Login, loginDto.Password, credentials.Password))
+            {
+                response.Success = false;
+                response.Message = "Błędny e-mail lub hasło";
+                return response;
+            }
+
+            response.Data = credentials.Roles.ToList();
+
+            return response;
         }
 
 
 
         // Service to hash and update password
-        public async Task UpdatePasswordAsync(string userId, UpdatePasswordDto updatePasswordDto)
+        public async Task<ServiceResponse> UpdatePasswordAsync(string userId, UpdatePasswordDto updatePasswordDto)
         {
+            var response = new ServiceResponse();
             var credentials = await _context.Credentials.Include(c => c.User).FirstOrDefaultAsync(c => c.Email == userId);
 
             if (credentials == null)
-                throw new NotFoundException();
+            {
+                response.Success = false;
+                response.Message = "Nie znaleziono użytkownika";
+                return response;
+            }
 
             var user = credentials.User;
 
             string hashedPassword = HashPassword(credentials.Email, updatePasswordDto.NewPassword);
             credentials.Password = hashedPassword;
             await _context.SaveChangesAsync();
+
+            return response;
         }
 
         // Service to update user
-        public async Task UpdateUserAsync(string userId, UpdateUserDto updateUserDto)
+        public async Task<ServiceResponse> UpdateUserAsync(string userId, UpdateUserDto updateUserDto)
         {
+            var response = new ServiceResponse();
             var credentials = await _context.Credentials.Include(c => c.User).FirstOrDefaultAsync(c => c.Email == userId);
 
             if (credentials == null)
-                throw new NotFoundException();
+            {
+                response.Success = false;
+                response.Message = "Nie znaleziono użytkownika";
+                return response;
+            }
 
             var user = credentials.User;
 
@@ -94,11 +128,59 @@ namespace VolleyballDomain.Shared.Services
             user.PersonalInfo = updateUserDto.PersonalInfo ?? user.PersonalInfo;
 
             await _context.SaveChangesAsync();
+
+            return response;
+        }
+
+        // Service to get player summary
+        public async Task<ServiceResponse<PlayerSummaryDto>> GetPlayerSummary(string email)
+        {
+            var response = new ServiceResponse<PlayerSummaryDto>();
+
+            var credentials = await _context.Credentials.Include(c => c.User).FirstOrDefaultAsync(c => c.Email == email);
+
+            if (credentials == null)
+            {
+                response.Success = false;
+                response.Message = "Nie znaleziono użytkownika";
+                return response;
+            }
+
+            var player = new PlayerSummaryDto()
+            {
+                FirstName = credentials.User.FirstName,
+                LastName = credentials.User.LastName,
+                Photo = credentials.User.Photo,
+            };
+
+            response.Data = player;
+
+            return response;
+        }
+
+        // Service to get user profile
+        public async Task<ServiceResponse<UserProfileDto>> GetUserProfileAsync(int id)
+        {
+            var response = new ServiceResponse<UserProfileDto>();
+
+            var user = await _context.Users.Include(u => u.Position).FirstOrDefaultAsync(u => u.Id == id);  
+
+            if (user == null)
+            {
+                response.Success = false;
+                response.Message = "Nie znaleziono użytkownika";
+                return response;
+            }
+
+            var player = (UserProfileDto)user;
+
+            response.Data = player;
+
+            return response;
         }
 
 
-
-        // Password hashing
+        // Password methods
 
         private bool VerifyPassword(string email, string password, string hashedPassword)
         {
@@ -159,7 +241,7 @@ namespace VolleyballDomain.Shared.Services
                 AdditionalEmail = registerDto.AdditionalEmail,
                 Hobby = registerDto.Hobby,
                 Phone = null,
-                PositionId = registerDto.PositionId ?? 0, 
+                PositionId = registerDto.PositionId > 0 ? registerDto.PositionId : 1,
                 PhotoWidth = null,
                 PhotoHeight = null,
                 Articles = new List<Article>(),

@@ -24,9 +24,11 @@ namespace Volleyball.DbServices.Services
             context = new VolleyballContext();
         }
 
-        public List<TeamDto> GetAllTeamsAsync()
+        public async Task<ServiceResponse<List<TeamDto>>> GetAllTeamsAsync()
         {
-            return context.Teams.ToList().Select(TeamDto.GenerateTeamDto).ToList();
+            var response = new ServiceResponse<List<TeamDto>>();
+            response.Data = (await context.Teams.ToListAsync()).Select(t => (TeamDto)t).ToList();
+            return response;
         }
 
         public async Task<ServiceResponse<TeamDto>> GetTeamByIdAsync(int id)

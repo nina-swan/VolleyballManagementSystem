@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,11 +14,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Volleyball.DTO;
 using Volleyball.Infrastructure.Database.Models;
+using VolleyballDomain.Shared;
 using VolleyballDomain.Shared.Services;
 
-namespace YourNamespace.Controllers
+namespace Volleyball.Api.Controllers
 {
     [ApiController]
+    //[EnableCors]
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
@@ -29,17 +33,28 @@ namespace YourNamespace.Controllers
             _config = config;
         }
 
+        [HttpGet]
+        [Route("/api/usersummary")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]        //[AllowAnonymous]
+        public async Task<IActionResult> GetUserSummary()
+        {
+            string id = User.Identity?.Name;
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return NotFound();
+            }
+            var result = await userDbService.GetPlayerSummary(id);
+            return Ok(result);
+        }
+
         // Register a new user
         [Route("/api/register")]
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDto registerDto)
         {
-            if (string.IsNullOrWhiteSpace(registerDto.Password))
-                return BadRequest("Password is required.");
+            var result = await userDbService.RegisterAsync(registerDto);
 
-            await userDbService.RegisterAsync(registerDto);
-
-            return Ok("Zarejestrowano pomyślnie");
+            return Ok();
         }
 
         // Log in
@@ -49,25 +64,40 @@ namespace YourNamespace.Controllers
         {
             await Task.Delay(1000);
 
-            if (!userDbService.Login(loginDto, out Credentials? credentials) || credentials == null)
+            var serviceResult = userDbService.Login(loginDto, out Credentials? credentials);
+
+            var response = new ServiceResponse<string>() { Data = "", Message = serviceResult.Message, Success = serviceResult.Success };
+
+            if (!serviceResult.Success || credentials == null)
             {
-                return Unauthorized();
+                return Ok(response);
             }
 
             string issuer = _config.GetValue<string>("Jwt:Issuer");
-            var key = Encoding.ASCII.GetBytes(_config.GetValue<string>("Jwt:Key"));
+            string audience = _config.GetValue<string>("Jwt:Audience");
+            var key = Encoding.UTF8.GetBytes(_config.GetValue<string>("Jwt:Key"));
+
+            List<Claim> roles = new List<Claim>();
+
+            foreach (var role in credentials.Roles)
+            {
+                roles.Add(new Claim(ClaimTypes.Role, role.Name));
+            }
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]
-                {
+        {
                         new Claim(ClaimTypes.Name, credentials.Email),
                         new Claim(ClaimTypes.NameIdentifier, credentials.Email),
-                        new Claim(ClaimTypes.Role, "zz")
-                    }),
+                }),
                 Expires = DateTime.UtcNow.AddMinutes(20),
                 Issuer = issuer,
+                Audience = audience,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature)
             };
+
+            tokenDescriptor.Subject.AddClaims(roles);
 
             var tokenHandler = new JwtSecurityTokenHandler();
             tokenHandler.OutboundClaimTypeMap.Clear();
@@ -75,8 +105,9 @@ namespace YourNamespace.Controllers
 
             var stringToken = tokenHandler.WriteToken(token);
 
+            response.Data = stringToken;
 
-            return Ok(stringToken);
+            return Ok(response);
 
         }
 
@@ -91,9 +122,13 @@ namespace YourNamespace.Controllers
                 return NotFound();
             }
 
-            await userDbService.UpdatePasswordAsync(id, updatePasswordDto);
+            var result = await userDbService.UpdatePasswordAsync(id, updatePasswordDto);
 
-            return Ok("Password updated successfully.");
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
         }
 
         // Update user data
@@ -107,9 +142,26 @@ namespace YourNamespace.Controllers
                 return NotFound();
             }
 
-            await userDbService.UpdateUserAsync(id, updateUserDto);
+            var result = await userDbService.UpdateUserAsync(id, updateUserDto);
 
-            return Ok("User data updated successfully.");
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
         }
+
+        // Get user profile by id
+        [HttpGet("UserProfile/{id}")]
+        public async Task<IActionResult> GetUserProfile(int id)
+        {
+            var result = await userDbService.GetUserProfileAsync(id);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
     }
 }
