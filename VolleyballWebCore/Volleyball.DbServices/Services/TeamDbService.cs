@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Volleyball.DTO;
+using System.Windows.Markup;
+using Volleyball.DTO.Teams;
 using Volleyball.Infrastructure.Database.Models;
 using VolleyballDomain.Shared;
 
@@ -48,7 +49,7 @@ namespace Volleyball.DbServices.Services
             return response;
         }
 
-        public async Task<ServiceResponse<TeamDto>> AddTeam(NewTeamDto team)
+        public async Task<ServiceResponse<TeamDto>> AddTeam(NewTeamDto team, string userId)
         {
             var response = new ServiceResponse<TeamDto>();
 
@@ -80,10 +81,22 @@ namespace Volleyball.DbServices.Services
                     {
                         FirstName = player.FirstName,
                         LastName = player.LastName,
+                        Height = (byte?)player.Height,
+                        JerseyNumber = (byte?)player.JerseyNumber,
+                        PositionId = player.PositionId,
                         Credentials = null
                     },
                     JoinDate = DateTime.Now
                 });
+            }
+
+            var captain = (await context.Credentials.Include(c => c.User).FirstOrDefaultAsync(u => u.Email == userId))?.User;
+
+            if (captain == null)
+            {
+                response.Success = false;
+                response.Message = "Captain not found";
+                return response;
             }
 
             var newTeam = new Team
@@ -91,18 +104,20 @@ namespace Volleyball.DbServices.Services
                 Name = team.Name,
                 CreationDate = DateTime.Now,
                 Image = team.Image,
-                League = null,
-                Captain = await context.Users.FirstOrDefaultAsync(u => u.Id == team.CaptainId) ?? throw new InvalidOperationException(),
+                LeagueId = 1,
+                CaptainId = captain.Id,
                 TeamPlayers = teamPlayers,
                 Email = team.Email,
                 Logo = team.Logo,
                 Phone = team.Phone,
                 TeamDescription = team.TeamDescription,
-                Website = team.Website
+                Website = team.Website,
+                IsReportedToPlay = false
             };
 
             try
             {
+
                 await context.Teams.AddAsync(newTeam);
                 await context.SaveChangesAsync();
 
@@ -192,7 +207,44 @@ namespace Volleyball.DbServices.Services
             return response;
         }
 
-        public void SendEmailAddedToTeam(TeamPlayerDto player, NewTeamDto team)
+        public async Task<ServiceResponse<TeamDto>> GetTeamByCaptain(string email)
+        {
+            var response = new ServiceResponse<TeamDto>();
+            
+            var team = await context.Teams
+                .Include(t => t.League)
+                .Include(u => u.Captain)
+                .Include(t => t.TeamPlayers).ThenInclude(t => t.Player)
+                .FirstOrDefaultAsync(t => t.Captain.Credentials.Email == email);
+
+            if (team == null)
+            {
+                response.Success = false;
+                response.Message = "Team not found";
+                return response;
+            }
+
+            response.Data = (TeamDto)team;
+            return response;
+        }
+
+        // get team by league id
+        public async Task<ServiceResponse<List<TeamDto>>> GetTeamsByLeagueId(int leagueId)
+        {
+            var response = new ServiceResponse<List<TeamDto>>();
+            var teams = await context.Teams.Where(t => t.League != null && t.League.Id == leagueId).ToListAsync();
+            if (teams == null)
+            {
+                response.Success = false;
+                response.Message = "Teams not found";
+                return response;
+            }
+            response.Data = teams.Select(t => (TeamDto)t).ToList();
+            return response;
+        }
+
+
+        private void SendEmailAddedToTeam(TeamPlayerDto player, NewTeamDto team)
         {
             // TODO: Send email to player
         }

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using Volleyball.DTO.Discussion;
 
-
-namespace Volleyball.DTO
+namespace Volleyball.DTO.Users
 {
     public class UserProfileDto
     {
@@ -52,7 +52,6 @@ namespace Volleyball.DTO
                 VolleyballIdol = user.VolleyballIdol,
                 Hobby = user.Hobby,
                 PositionName = user.Position?.Name,
-                Comments = user.Comments.Select(c => (CommentDto)c).ToList(),
             };
         }
 

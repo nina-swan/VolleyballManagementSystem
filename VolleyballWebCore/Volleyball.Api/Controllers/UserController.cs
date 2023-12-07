@@ -12,7 +12,8 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using Volleyball.DTO;
+using Volleyball.DbServices.Services;
+using Volleyball.DTO.Users;
 using Volleyball.Infrastructure.Database.Models;
 using VolleyballDomain.Shared;
 using VolleyballDomain.Shared.Services;
@@ -34,8 +35,8 @@ namespace Volleyball.Api.Controllers
         }
 
         [HttpGet]
-        [Route("/api/usersummary")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]        //[AllowAnonymous]
+        [Route("usersummary")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetUserSummary()
         {
             string id = User.Identity?.Name;
@@ -48,8 +49,8 @@ namespace Volleyball.Api.Controllers
         }
 
         // Register a new user
-        [Route("/api/register")]
-        [HttpPost("register")]
+        [HttpPost]
+        [Route("register")]
         public async Task<IActionResult> Register(RegisterDto registerDto)
         {
             var result = await userDbService.RegisterAsync(registerDto);
@@ -58,11 +59,10 @@ namespace Volleyball.Api.Controllers
         }
 
         // Log in
-        [Route("/api/login")]
-        [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginDto loginDto)
+        [Route("login")]
+        [HttpPost]
+        public  IActionResult Login(LoginDto loginDto)
         {
-            await Task.Delay(1000);
 
             var serviceResult = userDbService.Login(loginDto, out Credentials? credentials);
 
@@ -91,7 +91,7 @@ namespace Volleyball.Api.Controllers
                         new Claim(ClaimTypes.Name, credentials.Email),
                         new Claim(ClaimTypes.NameIdentifier, credentials.Email),
                 }),
-                Expires = DateTime.UtcNow.AddMinutes(20),
+                Expires = DateTime.UtcNow.AddMinutes(240),
                 Issuer = issuer,
                 Audience = audience,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature)
@@ -112,7 +112,9 @@ namespace Volleyball.Api.Controllers
         }
 
         // Update password
-        [HttpPut("updatePassword")]
+        [Authorize]
+        [Route("updatepassword")]
+        [HttpPut]
         public async Task<IActionResult> UpdatePassword(UpdatePasswordDto updatePasswordDto)
         {
             string id = User.Identity?.Name;
@@ -132,7 +134,9 @@ namespace Volleyball.Api.Controllers
         }
 
         // Update user data
-        [HttpPut("updateUserData")]
+        [Authorize]
+        [Route("updateuserdata")]
+        [HttpPut]
         public async Task<IActionResult> UpdateUserData(UpdateUserDto updateUserDto)
         {
             string id = User.Identity?.Name;
@@ -152,10 +156,31 @@ namespace Volleyball.Api.Controllers
         }
 
         // Get user profile by id
-        [HttpGet("UserProfile/{id}")]
+        [Route("userprofile/{id}")]
+        [HttpGet]
         public async Task<IActionResult> GetUserProfile(int id)
         {
             var result = await userDbService.GetUserProfileAsync(id);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+
+
+        [HttpGet]
+        [Route("isteamcaptain")]
+        [Authorize]
+        public async Task<IActionResult> IsTeamCaptain()
+        {
+            string? id = User.Identity?.Name;
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return Unauthorized();
+            }
+            var result = await userDbService.IsTeamCaptain(id);
             if (result.Success)
             {
                 return Ok(result);

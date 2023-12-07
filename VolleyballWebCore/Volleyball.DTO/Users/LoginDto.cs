@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Volleyball.DTO
+namespace Volleyball.DTO.Users
 {
     public class LoginDto
     {

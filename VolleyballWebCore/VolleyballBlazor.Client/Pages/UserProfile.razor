@@ -1,6 +1,10 @@
 ﻿@page "/user-profile/0"
 @page "/user-profile/{Id:int}"
 
+@inject IUserService userService
+
+
+<h1>@Error</h1>
 @if (UserProfileData != null)
 {
     <div class="d-flex flex-row justify-content-center">
@@ -86,7 +90,7 @@
 
             <div class="text-left">
                 <h4>Komentarze</h4>
-                @foreach (var Comment in ProfileComments)
+                @foreach (var Comment in UserProfileData.Comments)
                 {
                     <div class="flex-row d-flex mb-4">
                         <div>
@@ -141,50 +145,36 @@ else
 
     public NewCommentDto commentModel { get; set; }
 
-    protected override void OnInitialized()
+    public string Error { get; set; }
+
+    protected override async Task OnInitializedAsync()
     {
-        UserProfileData = GetUserProfile();
+        UserProfileData = await GetUserProfile();
 
         commentModel = new NewCommentDto()
             {
                 CommentLocation = Id,
             };
 
-        ProfileComments = new List<CommentDto>
-        {
-            new CommentDto
-            {
-                Id = 1,
-                Author = new AuthorInfoDto
-                {
-                    Id = 1,
-                    FirstName = "John",
-                    LastName = "Doe"
-                },
-                Content = "Super zawodnik!",
-                CreationDate = DateTime.Now
-            },
-            new CommentDto
-            {
-                Id = 1,
-                Author = new AuthorInfoDto
-                {
-                    Id = 1,
-                    FirstName = "John",
-                    LastName = "Doe"
-                },
-                Content = "Super zawodnik!",
-                CreationDate = DateTime.Now
-            },
-        };
     }
 
-    public UserProfileDto GetUserProfile()
+    public async Task<UserProfileDto> GetUserProfile()
     {
+        var response = await userService.GetUserProfile(Id);
+
+        if(response.Success)
+        {
+            return response.Data!;
+        }
+        else
+        {
+            Error = response.Message;
+        }
+
         return new UserProfileDto
             {
                 Id = 1,
-                FirstName = "John",
+                FirstName = "Ania",
                 LastName = "Doe",
                 BirthYear = 1990,
                 City = "New York",
@@ -198,7 +188,8 @@ else
                 AttackRange = 300,
                 VolleyballIdol = "Misty May-Treanor",
                 Hobby = "Hiking",
-                PositionName = "Middle Blocker"
+                PositionName = "Middle Blocker",
+                Comments = new List<CommentDto>()
             };
 
     }

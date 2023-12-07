@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Volleyball.Infrastructure.Database.Models;
 
-namespace Volleyball.DTO
+namespace Volleyball.DTO.Teams
 {
     public class TeamDto
     {
@@ -63,7 +63,7 @@ namespace Volleyball.DTO
         public static explicit operator TeamDto(Team team)
         {
             return GenerateTeamDto(team);
-        }   
+        }
 
     }
 }

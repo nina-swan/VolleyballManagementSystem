@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Volleyball.DTO
+namespace Volleyball.DTO.Discussion
 {
     public partial class ArticleDto
     {

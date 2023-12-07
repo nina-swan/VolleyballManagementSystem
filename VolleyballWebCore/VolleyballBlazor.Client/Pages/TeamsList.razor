@@ -1,5 +1,6 @@
 ﻿@page "/teamslist"
 @inject HttpClient Http
+@inject ITeamService teamService
 
 <div class="d-flex flex-column justify-content-center">
     <div class="form-group row" style="max-width:700px">
@@ -95,10 +96,17 @@
     }
 
 
-    private void UpdateLeague(ChangeEventArgs e)
+    private async void UpdateLeague(ChangeEventArgs e)
     {
         int leagueId = Convert.ToInt32(e.Value);
 
+        var result = await teamService.GetTeamsByLeague(leagueId);
+
+        if (result.Success)
+        {
+            Teams = result.Data;
+            return;
+        }
         // placeholders
 
         Teams = new List<TeamDto>();
@@ -211,7 +219,7 @@
                 {
                     Id = 9,
                     Name = "Team 9",
-                    Captain = new PlayerSummaryDto    
+                    Captain = new PlayerSummaryDto
                     {
                         FirstName = "Jan",
                         LastName = "Kowalski",

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Volleyball.DTO
+namespace Volleyball.DTO.Teams
 {
     public class PlayerSummaryDto
     {
@@ -18,7 +18,7 @@ namespace Volleyball.DTO
 
         public int? Height { get; set; }
 
-        public string PositionName { get; set; } = null!;   
+        public string PositionName { get; set; } = null!;
 
         public int? JerseyNumber { get; set; }
 

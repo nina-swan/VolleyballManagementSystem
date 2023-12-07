@@ -32,10 +32,18 @@ namespace VolleyballBlazor.Infrastructure.Client
             Message = response.ReasonPhrase ?? "";
             try
             {
-                if (StatusCode >= 300)
+                if (StatusCode >= 500)
                 {
                     Success = false;
                     Message = $"Błąd serwera ({response.StatusCode}). Spróbuj ponownie później lub zgłoś błąd.";
+
+                    return;
+                }
+                
+                if (StatusCode >= 300)
+                {
+                    Success = false;
+                    Message = $"Błąd klienta ({response.StatusCode}). Spróbuj ponownie później lub zgłoś błąd.";
 
                     return;
                 }

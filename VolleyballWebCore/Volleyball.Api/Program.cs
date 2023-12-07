@@ -27,6 +27,7 @@ builder.Services.AddCors(options =>
         }
         );
 });
+builder.Services.AddSwaggerGen();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -37,7 +38,6 @@ builder.Services.AddAuthentication(options =>
 {
     o.TokenValidationParameters = new TokenValidationParameters
     {
-        //RoleClaimType = "role",
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
         ClockSkew = TokenValidationParameters.DefaultClockSkew,
@@ -50,11 +50,13 @@ builder.Services.AddAuthentication(options =>
 });
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
-//builder.Services.AddAuthorization();    
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+
+// add swagger
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 app.UseCors();

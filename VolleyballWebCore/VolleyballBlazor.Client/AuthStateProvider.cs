@@ -25,26 +25,36 @@ namespace VolleyballBlazor.Client
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            var token = await _localStorage.GetItemAsync<string>("authToken");
+            var tokenString = await _localStorage.GetItemAsync<string>("authToken");
 
-            if (string.IsNullOrWhiteSpace(token))
+            if (string.IsNullOrWhiteSpace(tokenString))
                 return _anonymous;
 
             try
             {
-                IIdentity identity = new ClaimsIdentity(ParseClaimsFromJwt(token), "jwtAuthType");
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
+                var token = new JwtSecurityToken(tokenString);
+
+                if (token.ValidTo < DateTime.UtcNow)
+                {
+                    await _localStorage.RemoveItemAsync("authToken");
+                    return _anonymous;
+                }
+
+                IIdentity identity = new ClaimsIdentity(token.Claims, "jwtAuthType");
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", tokenString);
                 return new AuthenticationState(new ClaimsPrincipal(identity));
             }
             catch
             {
+                await _localStorage.RemoveItemAsync("authToken");
                 return _anonymous;
             }
         }
 
-        public void NotifyUserAuthentication(string token)
+        public void NotifyUserAuthentication(string tokenString)
         {
-            var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(token), "jwtAuthType"));
+            var token = new JwtSecurityToken(tokenString);
+            var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(token.Claims, "jwtAuthType"));
             var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
             NotifyAuthenticationStateChanged(authState);
         }
@@ -53,12 +63,6 @@ namespace VolleyballBlazor.Client
         {
             var authState = Task.FromResult(_anonymous);
             NotifyAuthenticationStateChanged(authState);
-        }
-
-        public static IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
-        {
-            var a = new JwtSecurityToken(jwt);
-            return a.Claims;
         }
     }
 

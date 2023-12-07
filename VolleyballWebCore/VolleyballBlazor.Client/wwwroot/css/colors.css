@@ -11,7 +11,7 @@
 /* COLORS 
 **************************************/
 
-.authorbox p a,
+/*.authorbox p a,
 .pp a,
 .sitemap-wrapper small,
 .fa-user-circle-o,
@@ -51,13 +51,13 @@ a:focus,
 
 .footer .widget-title {
     border-color: #3197d6;
-}
+}*/
 
 
 /* OTHER COLORS 
 **************************************/
 
-.navbar-nav .nav-link.active.color-pink-hover,
+/*.navbar-nav .nav-link.active.color-pink-hover,
 .navbar-nav .nav-link.color-pink-hover:hover,
 .navbar-nav .nav-link.color-pink-hover:focus {
     color: #deacca !important;
@@ -171,4 +171,4 @@ a:focus,
 
 .footer.wb .btn {
     color: rgba(255, 255, 255, 1) !important;
-}
+}*/

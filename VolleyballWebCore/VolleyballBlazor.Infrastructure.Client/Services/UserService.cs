@@ -5,7 +5,8 @@ using System.Linq;
 using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
-using Volleyball.DTO;
+using Volleyball.DTO.Teams;
+using Volleyball.DTO.Users;
 using VolleyballDomain.Shared;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -18,6 +19,9 @@ namespace VolleyballBlazor.Infrastructure.Client.Services
         Task UpdatePassword(string userId, UpdatePasswordDto updatePasswordDto);
         Task<ApiResponse<List<PositionDto>>> GetPositions();
         Task<ApiResponse<PlayerSummaryDto>> GetUserSummary();
+        Task<ApiResponse<UserProfileDto>> GetUserProfile(int userId);
+
+        Task<ApiResponse<bool>> IsTeamCaptain();
     }
 
     public class UserService : IUserService
@@ -76,7 +80,7 @@ namespace VolleyballBlazor.Infrastructure.Client.Services
         {
             try
             {
-                using (var response = await _httpClient.GetAsync("api/usersummary"))
+                using (var response = await _httpClient.GetAsync("api/user/usersummary"))
                 {
                     return new ApiResponse<PlayerSummaryDto>(response);
                 }
@@ -92,7 +96,7 @@ namespace VolleyballBlazor.Infrastructure.Client.Services
         {
             try
             {
-                using (var response = await _httpClient.GetAsync($"api/userprofile/{userId}"))
+                using (var response = await _httpClient.GetAsync($"api/User/userprofile/{userId}"))
                 {
                     return new ApiResponse<UserProfileDto>(response);
                 }
@@ -100,6 +104,23 @@ namespace VolleyballBlazor.Infrastructure.Client.Services
             catch
             {
                 return ApiResponse<UserProfileDto>.NetworkErrorResponse;
+            }
+        }
+
+
+        // check if user has a team
+        public async Task<ApiResponse<bool>> IsTeamCaptain()
+        {
+            try
+            {
+                using (var response = await _httpClient.GetAsync($"api/User/isteamcaptain"))
+                {
+                    return new ApiResponse<bool>(response);
+                }
+            }
+            catch
+            {
+                return ApiResponse<bool>.NetworkErrorResponse;
             }
         }
 

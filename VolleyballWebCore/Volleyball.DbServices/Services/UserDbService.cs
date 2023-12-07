@@ -6,7 +6,9 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using Volleyball.DTO;
+using Volleyball.DTO.Discussion;
+using Volleyball.DTO.Teams;
+using Volleyball.DTO.Users;
 using Volleyball.Infrastructure.Database.Models;
 
 namespace VolleyballDomain.Shared.Services
@@ -163,7 +165,12 @@ namespace VolleyballDomain.Shared.Services
         {
             var response = new ServiceResponse<UserProfileDto>();
 
-            var user = await _context.Users.Include(u => u.Position).FirstOrDefaultAsync(u => u.Id == id);  
+            var user = await _context.Users.Include(u => u.Position).FirstOrDefaultAsync(u => u.Id == id);
+
+            var comments = await _context.Comments.Where(c =>
+                c.ContentId == id &&
+                c.CommentLocationId == (int)CommentLocations.Player
+            ).ToListAsync();
 
             if (user == null)
             {
@@ -174,7 +181,27 @@ namespace VolleyballDomain.Shared.Services
 
             var player = (UserProfileDto)user;
 
+            player.Comments = comments.Select(c => (CommentDto)c).ToList();
+
             response.Data = player;
+
+            return response;
+        }
+
+
+        // check if player is a captain of any team
+        public async Task<ServiceResponse<bool>> IsTeamCaptain(string playerEmail)
+        {
+            var response = new ServiceResponse<bool>();
+            var user = (await _context.Credentials.Include(c => c.User).FirstOrDefaultAsync(p => p.Email == playerEmail))?.User;
+            if (user == null)
+            {
+                response.Success = false;
+                response.Message = "User not found";
+                return response;
+            }
+
+            response.Data = user.Team != null;
 
             return response;
         }

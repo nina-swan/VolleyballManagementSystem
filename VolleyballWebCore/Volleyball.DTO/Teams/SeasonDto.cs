@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Volleyball.DTO
+namespace Volleyball.DTO.Teams
 {
-
-    public class UpdatePasswordDto
+    public class SeasonDto
     {
-        public string NewPassword { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; }
     }
-
 }

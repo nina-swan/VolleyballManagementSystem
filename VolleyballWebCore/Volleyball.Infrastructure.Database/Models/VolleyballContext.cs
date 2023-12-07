@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Protocols;
+using System.Configuration;
 
 namespace Volleyball.Infrastructure.Database.Models;
 
@@ -13,6 +15,15 @@ public partial class VolleyballContext : DbContext
     public VolleyballContext(DbContextOptions<VolleyballContext> options)
         : base(options)
     {
+    }
+
+
+    protected override void OnConfiguring(DbContextOptionsBuilder builder)
+    {
+        // development
+        string connectionString = "Data Source=.;Initial Catalog=VolleyballDatabase;Integrated Security=True;TrustServerCertificate=True;";
+        builder.UseSqlServer(connectionString);
+
     }
 
     public virtual DbSet<Article> Articles { get; set; }
@@ -208,6 +219,58 @@ public partial class VolleyballContext : DbContext
                          .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
+        modelBuilder.Entity<Role>().HasData(new Role[]
+        {
+            new Role()
+            {
+                RoleId = 1,
+                Name = "Player"
+            },
+            new Role()
+            {
+                RoleId = 2,
+                Name = "Arbiter"
+            },
+            new Role()
+            {
+                RoleId = 3,
+                Name = "Admin"
+            }
+        });
+
+        modelBuilder.Entity<CommentLocation>().HasData(new CommentLocation[]
+        {
+            new CommentLocation()
+            {
+                Id = 1,
+                Name = "Article"
+            },
+            new CommentLocation()
+            {
+                Id = 2,
+                Name = "Team"
+            },
+            new CommentLocation()
+            {
+                Id = 3,
+                Name = "Player"
+            },
+            new CommentLocation()
+            {
+                Id = 4,
+                Name = "Match"
+            },
+            new CommentLocation()
+            {
+                Id = 5,
+                Name = "Thread"
+            },
+            new CommentLocation()
+            {
+                Id = 6,
+                Name = "PrivateMessage"
+            },
+        });
 
         OnModelCreatingPartial(modelBuilder);
     }

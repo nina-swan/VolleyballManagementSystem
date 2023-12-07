@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Volleyball.DTO
+namespace Volleyball.DTO.Discussion
 {
     public class AuthorInfoDto
     {
@@ -14,7 +14,7 @@ namespace Volleyball.DTO
 
         public string LastName { get; set; }
 
-        public byte[]? Photo { get; set; }   
+        public byte[]? Photo { get; set; }
 
         public static explicit operator AuthorInfoDto(User user)
         {

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Volleyball.Infrastructure.Database.Models;
 
-namespace Volleyball.DTO
+namespace Volleyball.DTO.Discussion
 {
     public class CommentDto
     {

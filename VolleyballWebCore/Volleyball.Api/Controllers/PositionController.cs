@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Volleyball.DbServices.Services;
-using Volleyball.DTO;
+using Volleyball.DTO.Teams;
 
 namespace Volleyball.Api.Controllers
 {
@@ -12,8 +12,9 @@ namespace Volleyball.Api.Controllers
         private readonly PositionDbService positionDbService = new PositionDbService();
         [HttpGet]
         public async Task<IActionResult> GetAllPositions()
-        {
-            return Ok(await positionDbService.GetAllPositionsAsync());
+        { 
+            var result = await positionDbService.GetAllPositionsAsync();
+            return Ok(result);
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetPositionById(int id)

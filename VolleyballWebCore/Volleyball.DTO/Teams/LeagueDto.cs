@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Volleyball.Infrastructure.Database.Models;    
+using Volleyball.Infrastructure.Database.Models;
 
-namespace Volleyball.DTO
+namespace Volleyball.DTO.Teams
 {
     public class LeagueDto
     {
