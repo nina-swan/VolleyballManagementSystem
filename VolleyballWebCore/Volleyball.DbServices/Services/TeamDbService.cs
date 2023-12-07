@@ -207,9 +207,9 @@ namespace Volleyball.DbServices.Services
             return response;
         }
 
-        public async Task<ServiceResponse<TeamDto>> GetTeamByCaptain(string email)
+        public async Task<ServiceResponse<ManagedTeamDataDto>> GetTeamByCaptain(string email)
         {
-            var response = new ServiceResponse<TeamDto>();
+            var response = new ServiceResponse<ManagedTeamDataDto>();
             
             var team = await context.Teams
                 .Include(t => t.League)
@@ -224,7 +224,7 @@ namespace Volleyball.DbServices.Services
                 return response;
             }
 
-            response.Data = (TeamDto)team;
+            response.Data = (ManagedTeamDataDto)team;
             return response;
         }
 

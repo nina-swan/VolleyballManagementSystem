@@ -49,10 +49,10 @@
                 <tr>
                     <td>@(++i)</td>
                     <td>
-                        <InputText style="max-width:130px" @bind-Value="player.FirstName" />
+                        <InputText style="max-width:130px" @bind-Value="player.FirstName" disabled />
                         <p class="text-danger"><ValidationMessage For="@(() => player.FirstName)" /></p>
                     </td>
-                    <td><InputText style="max-width:130px" @bind-Value="player.LastName" /></td>
+                    <td><InputText style="max-width:130px" @bind-Value="player.LastName" disabled /></td>
                     <td><InputNumber style="max-width:60px" @bind-Value="player.JerseyNumber" /></td>
                     <td><InputNumber style="max-width:60px" @bind-Value="player.Height" /></td>
                     <td>
@@ -119,9 +119,9 @@ else
 }
 
 @code {
-    ManageTeamModel ManagedTeam { get; set; } = new ManageTeamModel();
+    ManageTeamDto ManagedTeam { get; set; } = new ManageTeamDto();
     List<PositionDto> Positions { get; set; }
-    TeamDto? Team;
+    ManagedTeamDataDto? Team;
 
 
     int i = 0;
@@ -143,8 +143,8 @@ else
 
         if (!userHasTeam.Data)
         {
-            //navigationManager.NavigateTo("/CreateTeam");
-            //return;
+            navigationManager.NavigateTo("/CreateTeam");
+            return;
         }
 
 
@@ -168,7 +168,9 @@ else
 
         Team = teamResult.Data;
 
-        AddPlayer();
+        Console.WriteLine((ManageTeamDto)Team);
+
+        ManagedTeam = (ManageTeamDto)Team;
 
         PageReady = true;
     }

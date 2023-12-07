@@ -193,7 +193,7 @@ namespace VolleyballDomain.Shared.Services
         public async Task<ServiceResponse<bool>> IsTeamCaptain(string playerEmail)
         {
             var response = new ServiceResponse<bool>();
-            var user = (await _context.Credentials.Include(c => c.User).FirstOrDefaultAsync(p => p.Email == playerEmail))?.User;
+            var user = (await _context.Credentials.Include(c => c.User).ThenInclude(u => u.Team).FirstOrDefaultAsync(p => p.Email == playerEmail))?.User;
             if (user == null)
             {
                 response.Success = false;

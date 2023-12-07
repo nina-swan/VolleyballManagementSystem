@@ -55,7 +55,7 @@ namespace Volleyball.Api.Controllers
         {
             var result = await userDbService.RegisterAsync(registerDto);
 
-            return Ok();
+            return Ok(result);
         }
 
         // Log in

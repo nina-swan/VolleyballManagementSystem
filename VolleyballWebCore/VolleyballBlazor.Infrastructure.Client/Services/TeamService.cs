@@ -17,7 +17,7 @@ namespace VolleyballBlazor.Infrastructure.Client.Services
         public Task<ApiResponse> DeleteTeam(int id);
         public Task<ApiResponse> UpdateTeamPlayer(PlayerSummaryDto teamPlayer);
         public Task<ApiResponse<List<TeamDto>>> GetTeamsByLeague(int leagueId);
-        public Task<ApiResponse<TeamDto>> GetManagedTeam();
+        public Task<ApiResponse<ManagedTeamDataDto>> GetManagedTeam();
     }
 
     public class TeamService : ITeamService
@@ -41,10 +41,10 @@ namespace VolleyballBlazor.Infrastructure.Client.Services
             return new ApiResponse<TeamDto>(response);
         }
 
-        public async Task<ApiResponse<TeamDto>> GetManagedTeam()
+        public async Task<ApiResponse<ManagedTeamDataDto>> GetManagedTeam()
         {
             var response = await _httpClient.GetAsync($"api/team/managedteam");
-            return new ApiResponse<TeamDto>(response);
+            return new ApiResponse<ManagedTeamDataDto>(response);
         }
 
         public async Task<ApiResponse<List<TeamDto>>> GetTeamsByLeague(int leagueId)
