@@ -136,17 +136,20 @@ namespace Volleyball.DbServices.Services
 
             foreach (var newUser in newUsersToSendInvitation)
             {
-                SendEmailAddedToTeam(newUser, team);
+                SendEmailAddedToTeam(newUser);
             }
 
             return response;
         }
 
-        public async Task<ServiceResponse<TeamDto>> UpdateTeam(TeamDto team)
+        public async Task<ServiceResponse<ManageTeamDto>> UpdateTeam(ManageTeamDto team, string email)
         {
-            var response = new ServiceResponse<TeamDto>();
+            var response = new ServiceResponse<ManageTeamDto>();
 
-            var teamToUpdate = await context.Teams.FirstOrDefaultAsync(t => t.Id == team.Id);
+            var teamToUpdate = await context.Teams
+                .Include(u => u.Captain)
+                .Include(t => t.TeamPlayers).ThenInclude(t => t.Player)
+                .FirstOrDefaultAsync(t => t.Captain.Credentials.Email == email);
 
             if (teamToUpdate == null)
             {
@@ -155,15 +158,86 @@ namespace Volleyball.DbServices.Services
                 return response;
             }
 
-            teamToUpdate.Name = team.Name;
-            teamToUpdate.Image = team.Image;
+            teamToUpdate.Image = team.Photo;
+            teamToUpdate.Email = team.Email;
             teamToUpdate.Logo = team.Logo;
             teamToUpdate.Phone = team.Phone;
             teamToUpdate.TeamDescription = team.TeamDescription;
             teamToUpdate.Website = team.Website;
 
+
+            foreach (var player in team.Players)
+            {
+                var playerToUpdate = teamToUpdate.TeamPlayers.FirstOrDefault(p => p.Player.Id == player.Id);
+                if (playerToUpdate != null)
+                {
+                    playerToUpdate.Player.JerseyNumber = (byte?)player.JerseyNumber;
+                    playerToUpdate.Player.Height = (byte?)player.Height;
+                    playerToUpdate.Player.PositionId = player.PositionId;
+                    playerToUpdate.Player.Gender = player.Gender;
+                }
+            }
+
+            teamToUpdate.TeamPlayers.Concat(team.NewPlayers.Select(p => new TeamPlayer
+            {
+                Player = new User
+                {
+                    FirstName = p.FirstName,
+                    LastName = p.LastName,
+                    Height = (byte?)p.Height,
+                    JerseyNumber = (byte?)p.JerseyNumber,
+                    PositionId = p.PositionId,
+                    Credentials = null
+                },
+                JoinDate = DateTime.Now
+            }).ToList());
+
+            foreach(var player in team.NewPlayers)
+            {
+                var user = await context.Credentials.Include(c => c.User).FirstOrDefaultAsync(c => c.Email == player.Email);
+                if (user != null)
+                {
+                    teamToUpdate.TeamPlayers.Add(new TeamPlayer
+                    {
+                        Player = user.User,
+                        JoinDate = DateTime.Now
+                    });
+                }
+                else
+                {
+                    teamToUpdate.TeamPlayers.Add(new TeamPlayer
+                    {
+                        Player = new User
+                        {
+                            FirstName = player.FirstName,
+                            LastName = player.LastName,
+                            Height = (byte?)player.Height,
+                            JerseyNumber = (byte?)player.JerseyNumber,
+                            PositionId = player.PositionId,
+                            Credentials = null
+                        },
+                        JoinDate = DateTime.Now
+                    });
+
+                    if(player.Email != null)
+                    {
+                        SendEmailAddedToTeam(player);
+                    }
+                }
+            }
+
+            foreach(var player in team.RemovedPlayers)
+            {
+                var playerToRemove = teamToUpdate.TeamPlayers.FirstOrDefault(p => p.Player.Id == player.Id);
+                if (playerToRemove != null)
+                {
+                    teamToUpdate.TeamPlayers.Remove(playerToRemove);
+                }
+            }
+
             try
             {
+                context.Update(teamToUpdate);
                 await context.SaveChangesAsync();
             }
             catch (Exception e)
@@ -210,11 +284,11 @@ namespace Volleyball.DbServices.Services
         public async Task<ServiceResponse<ManagedTeamDataDto>> GetTeamByCaptain(string email)
         {
             var response = new ServiceResponse<ManagedTeamDataDto>();
-            
+
             var team = await context.Teams
                 .Include(t => t.League)
                 .Include(u => u.Captain)
-                .Include(t => t.TeamPlayers).ThenInclude(t => t.Player)
+                .Include(t => t.TeamPlayers).ThenInclude(t => t.Player).ThenInclude(p => p.Credentials)
                 .FirstOrDefaultAsync(t => t.Captain.Credentials.Email == email);
 
             if (team == null)
@@ -243,8 +317,49 @@ namespace Volleyball.DbServices.Services
             return response;
         }
 
+        //   update captain
+        public async Task<ServiceResponse> UpdateCaptain(int newCaptainId, string email)
+        {
+            var response = new ServiceResponse();
+            var team = await context.Teams
+                .Include(t => t.League)
+                .Include(u => u.Captain)
+                .FirstOrDefaultAsync(t => t.Captain.Credentials.Email == email);
 
-        private void SendEmailAddedToTeam(TeamPlayerDto player, NewTeamDto team)
+            if (team == null)
+            {
+                response.Success = false;
+                response.Message = "Team not found";
+                return response;
+            }
+
+            var newCaptain = await context.Users
+                .FirstOrDefaultAsync(u => u.Id == newCaptainId);
+
+
+
+            if (newCaptain == null)
+            {
+                response.Success = false;
+                response.Message = "User not found";
+                return response;
+            }
+            team.Captain = newCaptain;
+            try
+            {
+                await context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                response.Success = false;
+                response.Message = e.Message;
+                return response;
+            }
+            return response;
+        }
+
+
+        private void SendEmailAddedToTeam(TeamPlayerDto player)
         {
             // TODO: Send email to player
         }

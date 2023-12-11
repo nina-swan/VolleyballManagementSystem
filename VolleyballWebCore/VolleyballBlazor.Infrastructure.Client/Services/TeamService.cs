@@ -13,7 +13,7 @@ namespace VolleyballBlazor.Infrastructure.Client.Services
         public Task<ApiResponse<List<TeamDto>>> GetAllTeams();
         public Task<ApiResponse<TeamDto>> GetTeam(int id);
         public Task<ApiResponse> CreateTeam(NewTeamDto team);
-        public Task<ApiResponse> UpdateTeam(TeamDto team);
+        public Task<ApiResponse> UpdateTeam(ManageTeamDto team);
         public Task<ApiResponse> DeleteTeam(int id);
         public Task<ApiResponse> UpdateTeamPlayer(PlayerSummaryDto teamPlayer);
         public Task<ApiResponse<List<TeamDto>>> GetTeamsByLeague(int leagueId);
@@ -59,9 +59,9 @@ namespace VolleyballBlazor.Infrastructure.Client.Services
             return new ApiResponse(response);
         }
 
-        public async Task<ApiResponse> UpdateTeam(TeamDto team)
+        public async Task<ApiResponse> UpdateTeam(ManageTeamDto team)
         {
-            var response = await _httpClient.PutAsJsonAsync($"api/team/{team.Id}", team);
+            var response = await _httpClient.PutAsJsonAsync($"api/team", team);
             return new ApiResponse(response);
         }
 
@@ -76,6 +76,13 @@ namespace VolleyballBlazor.Infrastructure.Client.Services
             var response = await _httpClient.PutAsJsonAsync($"api/updateTeamPlayer", teamPlayer);
             return new ApiResponse(response);
         }
+
+        public async Task<ApiResponse> UpdateCaptain(int playerId)
+        {
+            var response = await _httpClient.PutAsJsonAsync($"api/updateCaptain", playerId);
+            return new ApiResponse(response);
+        }
+
 
         // check if user has a team
         public async Task<ApiResponse<bool>> CheckIfUserHasTeam()

@@ -1,0 +1,40 @@
+﻿
+@if (Image != null)
+{
+    <div style="width: 200px; height: 200px; cursor:pointer" class="mb-2 mt-2 img-thumbnail d-flex justify-content-center align-items-center" data-toggle="modal" data-target="#imagePreview_@guid">
+        <img src="@ImageBase64" style="max-height:100%" class="img-fluid" />
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="imagePreview_@guid" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <img src="@ImageBase64" class="img-fluid" />
+            </div>
+        </div>
+    </div>
+}
+@code {
+    [Parameter]
+    public byte[]? Image { get; set; }
+
+    [Parameter]
+    public EventCallback OnImageCleared { get; set; }
+
+    public Guid guid = Guid.NewGuid();
+
+    public string ImageBase64
+    {
+        get
+        {
+            if (Image != null)
+            {
+                return "data:image/png;base64, " + Convert.ToBase64String(Image);
+            }
+            else
+            {
+                return "";
+            }
+        }
+    }
+}

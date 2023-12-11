@@ -36,6 +36,7 @@
                     <th>Wzrost</th>
                     <th>Pozycja</th>
                     <th>Płeć</th>
+                    <th>Email</th>
                     <th>Usuń</th>
                 </tr>
             </thead>
@@ -69,6 +70,7 @@
                             <label class="m-1">K </label>
                         </InputRadioGroup>
                     </td>
+                    <td><InputText style="max-width:130px" @bind-Value="player.Email" /></td>
                     <td>
                         <button type="button" class="btn btn-danger" @onclick="() => NewTeam.Players.Remove(player)"><b>-</b></button>
                     </td>

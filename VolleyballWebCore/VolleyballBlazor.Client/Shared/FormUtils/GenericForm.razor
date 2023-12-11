@@ -67,5 +67,7 @@
     private void OnValueChanged(object? sender, EventArgs e)
     {
         InvokeAsync(() => ModelChanged.InvokeAsync(Model));
+        StateHasChanged();
+        Console.WriteLine("OnValueChanged");
     }
 }

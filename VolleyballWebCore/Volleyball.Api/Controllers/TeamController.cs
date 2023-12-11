@@ -49,10 +49,16 @@ namespace Volleyball.Api.Controllers
             return BadRequest(result);
         }
 
+        [Authorize]
         [HttpPut]
-        public async Task<IActionResult> UpdateTeam(TeamDto team)
+        public async Task<IActionResult> UpdateTeam(ManageTeamDto team)
         {
-            var result = await teamDbService.UpdateTeam(team);
+            string? id = User.Identity?.Name;
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return Unauthorized();
+            }
+            var result = await teamDbService.UpdateTeam(team, id);
 
             if (result.Success)
             {
@@ -104,6 +110,24 @@ namespace Volleyball.Api.Controllers
 
             var result = await teamDbService.GetTeamByCaptain(id);
 
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [HttpPut]
+        [Authorize]
+        [Route("updatecaptain")]
+        public async Task<IActionResult> UpdateCaptain(int captainId)
+        {
+            string? id = User.Identity?.Name;
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return Unauthorized();
+            }
+            var result = await teamDbService.UpdateCaptain(captainId, id);
             if (result.Success)
             {
                 return Ok(result);

@@ -10,9 +10,6 @@ namespace Volleyball.DTO.Teams
 {
     public class ManageTeamDto
     {
-        [Display(Name = "Kapitan drużyny")]
-        public TeamPlayerDto Captain { get; set; } = null!;
-
         public virtual List<TeamPlayerDto> Players { get; set; } = null!;
 
         [Display(Name = "Email drużynowy")]
@@ -35,11 +32,14 @@ namespace Volleyball.DTO.Teams
         [Display(Name = "Strona internetowa")]
         public string? Website { get; set; }
 
+        public virtual List<TeamPlayerDto> NewPlayers { get; set; } = null!;
+
+        public virtual List<TeamPlayerDto> RemovedPlayers { get; set; } = null!;
+
         public static explicit operator ManageTeamDto(ManagedTeamDataDto team)
         {
             return new ManageTeamDto
             {
-                Captain = team.Captain,
                 Email = team.Email,
                 Logo = team.Logo,
                 Photo = team.Photo,

@@ -1,0 +1,38 @@
+﻿<style>
+    .btn-close {
+        cursor: pointer;
+    }
+</style>
+
+<div class="d-flex flex-column align-items-center">
+    <InputFile class="form-control" OnChange="ChangeEvent">
+
+    </InputFile>
+    @if (Image != null)
+    {
+        <div class="d-flex flex-row align-items-end">
+            <ImagePreview Image="Image" />
+            <span class="oi oi-trash btn-close m-2" @onclick="ImageCleared" title="icon name" aria-hidden="true"></span>
+        </div>
+    }
+</div>
+@code {
+    [Parameter]
+    public EventCallback<InputFileChangeEventArgs> ImageChange { get; set; }
+
+    [Parameter]
+    public byte[]? Image { get; set; }
+
+    private async Task ChangeEvent(InputFileChangeEventArgs e)
+    {
+        await ImageChange.InvokeAsync(e);
+        StateHasChanged();
+    }
+
+    private async Task ImageCleared()
+    {
+        Image = null;
+        await ImageChange.InvokeAsync(null);
+        StateHasChanged();
+    }
+}

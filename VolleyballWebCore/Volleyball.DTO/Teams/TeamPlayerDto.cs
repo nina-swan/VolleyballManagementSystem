@@ -27,6 +27,8 @@ namespace Volleyball.DTO.Teams
 
         public bool Gender { get; set; }
 
+        public bool IsRegisteredUser { get; set; }
+
         public static explicit operator TeamPlayerDto(User user)
         {
             return new TeamPlayerDto
@@ -38,6 +40,7 @@ namespace Volleyball.DTO.Teams
                 JerseyNumber = user.JerseyNumber ?? 0,
                 PositionId = user.PositionId,
                 Gender = user.Gender,
+                IsRegisteredUser = user.Credentials != null
             };
         }
 

@@ -3,7 +3,7 @@
 @inject IUserService userService
 @inject ITeamService teamService
 @inject NavigationManager navigationManager
-
+@using System.Text
 
 @if (PageReady)
 {
@@ -25,10 +25,9 @@
 
 
         </GenericForm>
-
         <h5>Zawodnicy</h5>
         <p class="text-danger"><ValidationMessage For="@(() => ManagedTeam.Players)"></ValidationMessage></p>
-        <table class="table table-responsive">
+        <table class="table table-responsive table-sm">
             <thead>
                 <tr>
                     <th>Lp</th>
@@ -38,6 +37,10 @@
                     <th>Wzrost</th>
                     <th>Pozycja</th>
                     <th>Płeć</th>
+                    @if (ManagedTeam.NewPlayers.Count > 0)
+                    {
+                        <th>Email</th>
+                    }
                     <th>Usuń</th>
                 </tr>
             </thead>
@@ -49,10 +52,54 @@
                 <tr>
                     <td>@(++i)</td>
                     <td>
-                        <InputText style="max-width:130px" @bind-Value="player.FirstName" disabled />
+                        <InputText style="max-width:110px" @bind-Value="player.FirstName" disabled />
                         <p class="text-danger"><ValidationMessage For="@(() => player.FirstName)" /></p>
                     </td>
-                    <td><InputText style="max-width:130px" @bind-Value="player.LastName" disabled /></td>
+                    <td><InputText style="max-width:110px" @bind-Value="player.LastName" disabled /></td>
+                    <td><InputNumber style="max-width:60px" @bind-Value="player.JerseyNumber" /></td>
+                    <td><InputNumber style="max-width:60px" @bind-Value="player.Height" /></td>
+                    <td>
+                        <InputSelect @bind-Value="player.PositionId">
+                            @foreach (var position in Positions)
+                            {
+                                <option value="@position.Id">@position.Name</option>
+                            }
+                        </InputSelect>
+                    </td>
+                    <td class="d-flex flex-nowrap align-items-center">
+                        <InputRadioGroup @bind-Value="player.Gender">
+                            <InputRadio Value="false" class="m-1"></InputRadio>
+                            <label class="mt-1">M</label>
+                            <InputRadio Value="true" class="m-1"></InputRadio>
+                            <label class="mt-1">K</label>
+                        </InputRadioGroup>
+                    </td>
+                    @if (ManagedTeam.NewPlayers.Count > 0)
+                    {
+                        <td></td>
+                    }
+                    <td>
+                        <button type="button" class="btn btn-danger" @onclick="() => RemovePlayer(player)"><b>-</b></button>
+                    </td>
+                </tr>
+            }
+
+
+            @if (ManagedTeam.NewPlayers.Count > 0)
+            {
+                <tr>
+                    <td colspan="8"><h6>Nowi zawodnicy</h6></td>
+                </tr>
+            }
+            @foreach (var player in ManagedTeam.NewPlayers)
+            {
+                <tr>
+                    <td>@(++i)</td>
+                    <td>
+                        <InputText style="max-width:110px" @bind-Value="player.FirstName" />
+                        <p class="text-danger"><ValidationMessage For="@(() => player.FirstName)" /></p>
+                    </td>
+                    <td><InputText style="max-width:120px" @bind-Value="player.LastName" /></td>
                     <td><InputNumber style="max-width:60px" @bind-Value="player.JerseyNumber" /></td>
                     <td><InputNumber style="max-width:60px" @bind-Value="player.Height" /></td>
                     <td>
@@ -72,7 +119,55 @@
                         </InputRadioGroup>
                     </td>
                     <td>
-                        <button type="button" class="btn btn-danger" @onclick="() => ManagedTeam.Players.Remove(player)"><b>-</b></button>
+                        <InputText style="max-width:120px" @bind-Value="player.Email" />
+                        <p class="text-danger"><ValidationMessage For="@(() => player.Email)" /></p>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-danger" @onclick="() => UndoAdd(player)"><b>-</b></button>
+                    </td>
+                </tr>
+            }
+
+
+            @if (ManagedTeam.RemovedPlayers.Count > 0)
+            {
+                <tr>
+                    <td colspan="8"><h6>Usuwani zawodnicy</h6></td>
+                </tr>
+            }
+            @foreach (var player in ManagedTeam.RemovedPlayers)
+            {
+                <tr>
+                    <td>@(++i)</td>
+                    <td>
+                        <InputText style="max-width:110px" @bind-Value="player.FirstName" disabled />
+                        <p class="text-danger"><ValidationMessage For="@(() => player.FirstName)" /></p>
+                    </td>
+                    <td><InputText style="max-width:120px" @bind-Value="player.LastName" disabled /></td>
+                    <td><InputNumber style="max-width:60px" @bind-Value="player.JerseyNumber" disabled /></td>
+                    <td><InputNumber style="max-width:60px" @bind-Value="player.Height" disabled /></td>
+                    <td>
+                        <InputSelect @bind-Value="player.PositionId" disabled>
+                            @foreach (var position in Positions)
+                            {
+                                <option value="@position.Id">@position.Name</option>
+                            }
+                        </InputSelect>
+                    </td>
+                    <td class="d-flex flex-nowrap align-items-center">
+                        <InputRadioGroup @bind-Value="player.Gender">
+                            <InputRadio disabled Value="false" class="m-1"></InputRadio>
+                            <label class="m-1">M </label>
+                            <InputRadio disabled Value="true" class="m-1"></InputRadio>
+                            <label class="m-1">K </label>
+                        </InputRadioGroup>
+                    </td>
+                    @if (ManagedTeam.NewPlayers.Count > 0)
+                    {
+                        <td></td>
+                    }
+                    <td>
+                        <button type="button" class="btn btn-danger" @onclick="() => UndoRemove(player)"><b>-</b></button>
                     </td>
                 </tr>
             }
@@ -82,6 +177,12 @@
                 </td>
             </tr>
         </table>
+
+        @if (transfers > 0)
+        {
+
+            <p>Tymi operacjami wykorzystasz następującą liczbę transferów: @transfers. Posiadasz jeszcze: @Team.AvailableTransfers transferów</p>
+        }
         <p class="text-danger"><ValidationSummary /></p>
         <div class="d-flex flex-column align-items-center">
             @if (IsLoading)
@@ -119,9 +220,10 @@ else
 }
 
 @code {
-    ManageTeamDto ManagedTeam { get; set; } = new ManageTeamDto();
+    ManageTeamModel ManagedTeam { get; set; } = new ManageTeamModel();
     List<PositionDto> Positions { get; set; }
     ManagedTeamDataDto? Team;
+    int transfers = 0;
 
 
     int i = 0;
@@ -168,9 +270,8 @@ else
 
         Team = teamResult.Data;
 
-        Console.WriteLine((ManageTeamDto)Team);
-
-        ManagedTeam = (ManageTeamDto)Team;
+        ManagedTeam = new ManageTeamModel((ManageTeamDto)Team);
+        Console.WriteLine(ManagedTeam.Players[0].Id);
 
         PageReady = true;
     }
@@ -178,24 +279,44 @@ else
     public void AddPlayer()
     {
         i = 0;
-        ManagedTeam.Players.Add(new TeamPlayerDto());
+        ManagedTeam.NewPlayers.Add(new TeamPlayerDto() { Id = 0 });
+        transfers++;
+    }
+
+    public void RemovePlayer(TeamPlayerDto player)
+    {
+        ManagedTeam.Players.Remove(player);
+        ManagedTeam.RemovedPlayers.Add(player);
+    }
+
+    public void UndoAdd(TeamPlayerDto player)
+    {
+        ManagedTeam.NewPlayers.Remove(player);
+        transfers--;
+    }
+
+    public void UndoRemove(TeamPlayerDto player)
+    {
+        ManagedTeam.RemovedPlayers.Remove(player);
+        ManagedTeam.Players.Add(player);
     }
 
     public async Task OnSubmit()
     {
-        //IsLoading = true;
-        //var response = await teamService.CreateTeam(ManagedTeam);
-        //IsLoading = false;
-        //if (response.Success)
-        //{
-        //    navigationManager.NavigateTo("/Teams");
-        //}
-        //else
-        //{
-        //    ShowErrorMessage = true;
-        //    ErrorMessage = response.Message;
-        //    StateHasChanged();
-        //}
+        IsLoading = true;
+        var response = await teamService.UpdateTeam(ManagedTeam);
+        IsLoading = false;
+        if (response.Success)
+        {
+            //Console.WriteLine(ManagedTeam.Logo.Length);
+            navigationManager.NavigateTo("/ManageTeam", forceLoad:true);
+        }
+        else
+        {
+            ShowErrorMessage = true;
+            ErrorMessage = response.Message;
+            StateHasChanged();
+        }
 
     }
 }

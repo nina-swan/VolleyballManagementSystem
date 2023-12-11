@@ -36,7 +36,7 @@ namespace Volleyball.DTO.Teams
 
         public string? Website { get; set; }
 
-        public int? PointCorrection { get; set; }
+        public int? AvailableTransfers { get; set; }
 
         // Method to generate TeamDto from Team
         public static ManagedTeamDataDto GenerateTeamDto(Team team)
@@ -56,7 +56,7 @@ namespace Volleyball.DTO.Teams
                 Phone = team.Phone,
                 TeamDescription = team.TeamDescription,
                 Website = team.Website,
-                PointCorrection = team.PointCorrection
+                AvailableTransfers = -team.ChangeCount
             };
         }
 

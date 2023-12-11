@@ -116,11 +116,11 @@ public partial class VolleyballContext : DbContext
         {
             entity.HasOne(d => d.Team).WithMany(p => p.TeamPlayers)
           .HasForeignKey(d => d.TeamId)
-          .OnDelete(DeleteBehavior.ClientSetNull);
+          .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasOne(d => d.Player).WithMany(p => p.TeamPlayers)
                 .HasForeignKey(d => d.PlayerId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+                .OnDelete(DeleteBehavior.Cascade);
 
         });
 

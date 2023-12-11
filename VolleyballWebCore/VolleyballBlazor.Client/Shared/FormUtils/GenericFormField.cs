@@ -9,6 +9,7 @@ using System.Reflection;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using VolleyballBlazor.Client.Models;
+using VolleyballBlazor.Client.Shared.Components;
 
 namespace VolleyballBlazor.Client.Shared.FormUtils
 {
@@ -131,10 +132,10 @@ namespace VolleyballBlazor.Client.Shared.FormUtils
                 {
                     return builder =>
                     {
-                        builder.OpenComponent<InputFile>(0);
-                        builder.AddAttribute(1, "OnChange", EventCallback.Factory.Create(this, (InputFileChangeEventArgs e) => HandleFileChange(e)));
-                        builder.AddAttribute(2, "class", _form.EditorClass);
-                        builder.CloseElement();
+                        builder.OpenComponent<ImageUpload>(0);
+                        builder.AddAttribute(1, "ImageChange", EventCallback.Factory.Create(this, (InputFileChangeEventArgs e) => HandleFileChange(e)));
+                        builder.AddAttribute(2, "Image", Value);
+                        builder.CloseComponent();
                     };
                 }
                 else if (propertyName.EndsWith("Id"))
@@ -142,7 +143,6 @@ namespace VolleyballBlazor.Client.Shared.FormUtils
                     // Handle Id field with associated list
                     var listPropertyName = $"{propertyName.Substring(0, propertyName.Length - 2)}List";
                     var listProperty = typeof(TModel).GetProperty(listPropertyName);
-                    Console.WriteLine(((List<string>)listProperty.GetValue(Owner))[0]);
 
                     if (listProperty != null && listProperty.PropertyType == typeof(List<string>))
                     {
@@ -198,19 +198,25 @@ namespace VolleyballBlazor.Client.Shared.FormUtils
             }
         }
 
-        private async Task HandleFileChange(InputFileChangeEventArgs e)
+        private void HandleImageCleared()
         {
-            var file = e.File;
+            Value = null;
+        }
+
+        private async Task HandleFileChange(InputFileChangeEventArgs? e)
+        {
+            var file = e?.File;
 
             if (file != null)
             {
                 var buffer = new byte[file.Size];
                 await file.OpenReadStream(maxAllowedSize: 6000000).ReadAsync(buffer);
 
-                // Now 'buffer' contains the file content as bytes
-                // You can assign it to your 'Value' property or handle it as needed
                 Value = buffer;
-                Console.WriteLine(buffer.Length);
+            }
+            else
+            {
+                Value = null;
             }
         }
 
@@ -245,7 +251,6 @@ namespace VolleyballBlazor.Client.Shared.FormUtils
 
         private static (Type ComponentType, IEnumerable<KeyValuePair<string, object>>? AdditonalAttributes) GetEditorType(PropertyInfo property)
         {
-            //Console.WriteLine(property.PropertyType.Name);
             var editorAttributes = property.GetCustomAttributes<EditorAttribute>();
             foreach (var editorAttribute in editorAttributes)
             {
@@ -256,7 +261,6 @@ namespace VolleyballBlazor.Client.Shared.FormUtils
             if (property.PropertyType == typeof(bool))
                 return (typeof(InputCheckbox), null);
 
-            //Console.WriteLine(property.PropertyType.Name);
             if (property.PropertyType == typeof(string))
             {
                 var dataType = property.GetCustomAttribute<DataTypeAttribute>();
