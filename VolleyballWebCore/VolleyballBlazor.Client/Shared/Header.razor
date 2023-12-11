@@ -1,5 +1,6 @@
 ﻿@inject AuthenticationStateProvider authStateProvider
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject IUserService userService
 
 <header class="header" style="height: 80px">
     <div class="container-fluid">
@@ -18,18 +19,25 @@
                         <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Tabele</a>
                         <ul class="dropdown-menu megamenu bg-inverse" aria-labelledby="dropdown01">
                             <li>
-                                <NavLink class="nav-link" href="/typermania">Typermania</NavLink>
+                                <NavLink class="nav-link nav-link-dropdown" href="/typermania">Typermania</NavLink>
                             </li>
                             <li>
-                                <NavLink class="nav-link" href="/mvp">MVP</NavLink>
+                                <NavLink class="nav-link nav-link-dropdown" href="/mvp">MVP</NavLink>
                             </li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown has-submenu menu-large hidden-md-down hidden-sm-down hidden-xs-down">
                         <NavLink class="nav-link" href="/teamslist">Zespoły</NavLink>
-                                                <ul class="dropdown-menu megamenu bg-inverse" aria-labelledby="dropdown01">
+                        <ul class="dropdown-menu megamenu" aria-labelledby="dropdown01">
                             <li>
-                                <NavLink class="nav-link" href="/mvp">MVP</NavLink>
+                                @if(IsTeamCaptain)
+                                {
+                                    <NavLink class="nav-link nav-link-dropdown" href="/manageteam">Zarządzaj drużyną</NavLink>
+                                }
+                                else
+                                {
+                                    <NavLink class="nav-link nav-link-dropdown" href="/createteam">Stwórz nową drużynę</NavLink>
+                                }
                             </li>
                         </ul>
                     </li>
@@ -70,6 +78,14 @@
 
     [Inject]
     public NavigationManager NavigationManager { get; set; }
+
+    public bool IsTeamCaptain { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await userService.IsTeamCaptain();
+        IsTeamCaptain = result.Data;
+    }
 
     public async void Logout()
     {
