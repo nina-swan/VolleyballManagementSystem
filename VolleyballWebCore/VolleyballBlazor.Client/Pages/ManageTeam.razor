@@ -221,15 +221,15 @@ else
 
 @code {
     ManageTeamModel ManagedTeam { get; set; } = new ManageTeamModel();
-    List<PositionDto> Positions { get; set; }
-    ManagedTeamDataDto? Team;
+    List<PositionDto> Positions { get; set; } = new List<PositionDto>();
+    ManagedTeamDataDto Team;
     int transfers = 0;
 
 
     int i = 0;
     bool IsLoading { get; set; } = false;
     bool ShowErrorMessage { get; set; } = false;
-    string ErrorMessage { get; set; }
+    string ErrorMessage { get; set; } = "";
     bool PageReady { get; set; } = false;
 
     protected override async Task OnInitializedAsync()
@@ -257,7 +257,7 @@ else
             ErrorMessage = positionsResult.Message;
             return;
         }
-        Positions = positionsResult.Data;
+        Positions = positionsResult.Data!;
 
         var teamResult = await teamService.GetManagedTeam();
 
@@ -268,10 +268,9 @@ else
             return;
         }
 
-        Team = teamResult.Data;
+        Team = teamResult.Data!;
 
         ManagedTeam = new ManageTeamModel((ManageTeamDto)Team);
-        Console.WriteLine(ManagedTeam.Players[0].Id);
 
         PageReady = true;
     }

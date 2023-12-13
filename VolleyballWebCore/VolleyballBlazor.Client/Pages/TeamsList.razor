@@ -2,76 +2,85 @@
 @inject HttpClient Http
 @inject ITeamService teamService
 
-<div class="d-flex flex-column justify-content-center">
-    <div class="form-group row" style="max-width:700px">
-        <label for="league">Liga:</label>
-        <select class="form-control" id="league" @onchange="UpdateLeague">
-            @if (Leagues == null)
+<div class="d-flex flex-column" style="min-width:75%">
+    <p class="text-danger">@ErrorMessage</p>
+
+    @if (PageReady)
+    {
+        <div class="form-group row" style="max-width:700px">
+            <label for="league">Liga:</label>
+            <select class="form-control" id="league" @onchange="UpdateLeague">
+                @if (Leagues == null)
+                {
+                    <option value="null" disabled>Ładowanie lig...</option>
+                }
+                else
+                {
+                    <option value="null" selected disabled>Wybierz ligę</option>
+                    @foreach (LeagueDto league in Leagues)
+                    {
+                        <option value="@league.Id">@league.Name</option>
+                    }
+                }
+
+            </select>
+        </div>
+        <div>
+            @if (Teams == null)
             {
-                <option value="null" disabled>Ładowanie lig...</option>
+                <p>Wybierz ligę, by zobaczyć drużyny</p>
+
             }
             else
             {
-                @foreach (LeagueDto league in Leagues)
-                {
-                    <option value="@league.Id">@league.Name</option>
-                }
-            }
-
-        </select>
-    </div>
-    <div>
-        @if (Teams == null)
-        {
-            <p>Wybierz ligę, by zobaczyć drużyny</p>
-
-        }
-        else
-        {
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col"></th>
-                        <th scope="col">Drużyna</th>
-                        <th scope="col">Kapitan</th>
-                    </tr>
-                </thead>
-                <tbody>
-
-                    @foreach (TeamDto team in Teams)
-                    {
+                <table class="table table-hover">
+                    <thead>
                         <tr>
-                            <td>
-                                @if (team.Logo != null)
-                                {
-                                    <img class="img-thumbnail" style="width: 100px" src="@Convert.ToBase64String(team.Logo)">
-                                }
-                                else
-                                {
-                                    <img class="img-thumbnail" style="width: 100px" src="/images/user.png">
-                                }
-                            </td>
-                            <td>
-                                <NavLink href="@{
+                            <th scope="col"></th>
+                            <th scope="col">Drużyna</th>
+                            <th scope="col">Kapitan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach (TeamDto team in Teams)
+                        {
+                            <tr>
+                                <td>
+                                    @if (team.Logo != null)
+                                    {
+                                        <TeamLogo Image="@team.Logo" SizePx="100" />
+                                    }
+                                    else
+                                    {
+                                        <img class="img-thumbnail" style="width: 100px" src="/images/user.png">
+                                    }
+                                </td>
+                                <td  style="vertical-align: middle">
+                                    <NavLink href="@{
                         "/team/"+team.Id
 }"> @team.Name </NavLink>
-                            </td>
-                            <td>
-                                <NavLink href="@{
+                                </td>
+                                <td  style="vertical-align: middle">
+                                    <NavLink href="@{
                         "/user-profile/"+team.Captain.Id
 }">@team.Captain.FirstName @team.Captain.LastName</NavLink>
-                            </td>
-                        </tr>
-                    }
+                                </td>
+                            </tr>
+                        }
 
-                </tbody>
-            </table>
-        }
-    </div>
+                    </tbody>
+                </table>
+            }
+        </div>
 
+    }
 </div>
 
 @code {
+    public bool PageReady = false;
+
+    public string ErrorMessage = "";
 
     public List<LeagueDto>? Leagues;
 
@@ -79,20 +88,27 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Leagues = null;
-        Leagues = GetLeagues();
+        Leagues = await GetLeagues();
+
+        if (Leagues != null)
+        {
+            PageReady = true;
+        }
+
     }
 
 
-    private List<LeagueDto> GetLeagues()
+    private async Task<List<LeagueDto>?> GetLeagues()
     {
-        Task.Delay(1000);
+        var leaguesResoponse = await teamService.GetLeagues();
 
-        var leagues = new List<LeagueDto>();
-        leagues.Add(new LeagueDto { Id = 1, Name = "League 1" });
-        leagues.Add(new LeagueDto { Id = 2, Name = "League 2" });
-        leagues.Add(new LeagueDto { Id = 3, Name = "League 3" });
-        return leagues;
+        if (!leaguesResoponse.Success)
+        {
+            ErrorMessage = leaguesResoponse.Message;
+            return null;
+        }
+
+        return leaguesResoponse.Data;
     }
 
 
@@ -105,128 +121,8 @@
         if (result.Success)
         {
             Teams = result.Data;
+            StateHasChanged();
             return;
-        }
-        // placeholders
-
-        Teams = new List<TeamDto>();
-
-        if (leagueId == 1)
-        {
-            Teams.Add(new TeamDto
-                {
-                    Id = 1,
-                    Name = "Team 1",
-                    Captain = new PlayerSummaryDto
-                    {
-                        FirstName = "Jan",
-                        LastName = "Kowalski",
-                        Id = 1,
-                    },
-                    Logo = null,
-                });
-            Teams.Add(new TeamDto
-                {
-                    Id = 2,
-                    Name = "Team 2",
-                    Captain = new PlayerSummaryDto
-                    {
-                        FirstName = "Jan",
-                        LastName = "Kowalski",
-                        Id = 1,
-                    },
-                    Logo = null,
-                });
-            Teams.Add(new TeamDto
-                {
-                    Id = 3,
-                    Name = "Team 3",
-                    Captain = new PlayerSummaryDto
-                    {
-                        FirstName = "Jan",
-                        LastName = "Kowalski",
-                        Id = 1,
-                    },
-                    Logo = null,
-                });
-        }
-        else if (leagueId == 2)
-        {
-            Teams.Add(new TeamDto
-                {
-                    Id = 4,
-                    Name = "Team 4",
-                    Captain = new PlayerSummaryDto
-                    {
-                        FirstName = "Jan",
-                        LastName = "Kowalski",
-                        Id = 1,
-                    },
-                    Logo = null,
-                });
-            Teams.Add(new TeamDto
-                {
-                    Id = 5,
-                    Name = "Team 5",
-                    Captain = new PlayerSummaryDto
-                    {
-                        FirstName = "Jan",
-                        LastName = "Kowalski",
-                        Id = 1,
-                    },
-                    Logo = null,
-                });
-            Teams.Add(new TeamDto
-                {
-                    Id = 6,
-                    Name = "Team 6",
-                    Captain = new PlayerSummaryDto
-                    {
-                        FirstName = "Jan",
-                        LastName = "Kowalski",
-                        Id = 1,
-                    },
-                    Logo = null,
-                });
-        }
-        else if (leagueId == 3)
-        {
-            Teams.Add(new TeamDto
-                {
-                    Id = 7,
-                    Name = "Team 7",
-                    Captain = new PlayerSummaryDto
-                    {
-                        FirstName = "Jan",
-                        LastName = "Kowalski",
-                        Id = 1,
-                    },
-                    Logo = null,
-                });
-            Teams.Add(new TeamDto
-                {
-                    Id = 8,
-                    Name = "Team 8",
-                    Captain = new PlayerSummaryDto
-                    {
-                        FirstName = "Jan",
-                        LastName = "Kowalski",
-                        Id = 1,
-                    },
-                    Logo = null,
-                });
-            Teams.Add(new TeamDto
-                {
-                    Id = 9,
-                    Name = "Team 9",
-                    Captain = new PlayerSummaryDto
-                    {
-                        FirstName = "Jan",
-                        LastName = "Kowalski",
-                        Id = 1,
-                    },
-                    Logo = null,
-                });
         }
 
     }

@@ -20,7 +20,6 @@ namespace VolleyballBlazor.Infrastructure.Client.Services
         Task<ApiResponse<List<PositionDto>>> GetPositions();
         Task<ApiResponse<PlayerSummaryDto>> GetUserSummary();
         Task<ApiResponse<UserProfileDto>> GetUserProfile(int userId);
-
         Task<ApiResponse<bool>> IsTeamCaptain();
     }
 

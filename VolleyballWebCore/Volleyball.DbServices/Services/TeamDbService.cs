@@ -35,7 +35,11 @@ namespace Volleyball.DbServices.Services
         public async Task<ServiceResponse<TeamDto>> GetTeamByIdAsync(int id)
         {
             var response = new ServiceResponse<TeamDto>();
-            var team = await context.Teams.FirstOrDefaultAsync(t => t.Id == id);
+            var team = await context.Teams
+                .Include(t => t.TeamPlayers).ThenInclude(tp => tp.Player).ThenInclude(p => p.Position)
+                .Include(t => t.Captain).ThenInclude(c => c.Position)
+                .Include(t => t.League)
+                .FirstOrDefaultAsync(t => t.Id == id);
 
             if (team == null)
             {
@@ -306,7 +310,11 @@ namespace Volleyball.DbServices.Services
         public async Task<ServiceResponse<List<TeamDto>>> GetTeamsByLeagueId(int leagueId)
         {
             var response = new ServiceResponse<List<TeamDto>>();
-            var teams = await context.Teams.Where(t => t.League != null && t.League.Id == leagueId).ToListAsync();
+            var teams = await context.Teams
+                .Include(t => t.League)
+                .Include(t => t.TeamPlayers).ThenInclude(p => p.Player).ThenInclude(p => p.Position)
+                .Include(t => t.Captain)
+                .Where(t => t.League != null && t.League.Id == leagueId).ToListAsync();
             if (teams == null)
             {
                 response.Success = false;
@@ -358,11 +366,41 @@ namespace Volleyball.DbServices.Services
             return response;
         }
 
+        // get leagues
+        public async Task<ServiceResponse<List<LeagueDto>>> GetLeagues()
+        {
+            var response = new ServiceResponse<List<LeagueDto>>();
+            var leagues = await context.Leagues.ToListAsync();
+            if (leagues == null)
+            {
+                response.Success = false;
+                response.Message = "Leagues not found";
+                return response;
+            }
+            response.Data = leagues.Select(l => (LeagueDto)l).ToList();
+            return response;
+        }
+
+        public async Task<ServiceResponse<List<SeasonDto>>> GetSeasons()
+        {
+            var response = new ServiceResponse<List<SeasonDto>>();
+            var seasons = await context.Seasons.ToListAsync();
+            if (seasons == null)
+            {
+                response.Success = false;
+                response.Message = "Seasons not found";
+                return response;
+            }
+
+            response.Data = seasons.Select(s => (SeasonDto)s).ToList();
+
+            return response;
+        }
+
 
         private void SendEmailAddedToTeam(TeamPlayerDto player)
         {
             // TODO: Send email to player
         }
-
     }
 }

@@ -22,5 +22,10 @@ namespace Volleyball.DTO.Teams
                 Name = league.Name
             };
         }
+
+        public static explicit operator LeagueDto(League league)
+        {
+            return GenerateLeagueDto(league);
+        }
     }
 }

@@ -4,17 +4,17 @@
 @inject IUserService userService
 
 
-<h1>@Error</h1>
-@if (UserProfileData != null)
-{
-    <div class="d-flex flex-row justify-content-center">
+<div class="d-flex flex-row justify-content-center">
+
+    @if (UserProfileData != null)
+    {
         <div class="text-center" style="max-width: 750px">
             <div class="d-flex flex-row justify-content-center">
 
-                <div class="p-2 border border-primary" style="width: 150px; height: 200px">
+                <div class="p-2" style="width: 150px; height: 200px">
                     @if (UserProfileData.Photo != null)
                     {
-                        <img src="@Convert.ToBase64String(UserProfileData.Photo)" />
+                        <TeamLogo Logo="@UserProfileData.Photo" SizePx="150"/>
                     }
                     else
                     {
@@ -26,10 +26,6 @@
                 <div class="p-2">
                     <table class="table">
                         <tbody>
-                            <tr>
-                                <th>Stanowisko</th>
-                                <td>@UserProfileData.Roles</td>
-                            </tr>
                             <tr>
                                 <th>Imię i nazwisko</th>
                                 <td>@UserProfileData.FirstName @UserProfileData.LastName</td>
@@ -116,23 +112,32 @@
                     </div>
                 }
                 <div class="mb-4">
-                <EditForm Model="@commentModel" OnValidSubmit="HandleValidSubmit">
-                    <div class="form-group">
-                        <label class="row-form-label" for="Comment">Dodaj komentarz:</label>
-                        <InputTextArea class="form-control" id="Comment" @bind-Value="commentModel.Content" />
-                        <ValidationMessage For="@(() => commentModel.Content)" />
-                    </div>
-                    <button type="submit" class="btn btn-primary">Dodaj</button>
-                </EditForm>
+                    <EditForm Model="@commentModel" OnValidSubmit="HandleValidSubmit">
+                        <div class="form-group">
+                            <label class="row-form-label" for="Comment">Dodaj komentarz:</label>
+                            <InputTextArea class="form-control" id="Comment" @bind-Value="commentModel.Content" />
+                            <ValidationMessage For="@(() => commentModel.Content)" />
+                        </div>
+                        <button type="submit" class="btn btn-primary">Dodaj</button>
+                    </EditForm>
                 </div>
             </div>
         </div>
-    </div>
-}
-else
-{
-    <p>Loading user profile...</p>
-}
+    }
+    else
+    {
+        @if (Error != "")
+        {
+            <div class="alert alert-danger" role="alert">
+                @Error
+            </div>
+        }
+        else
+        {
+            <LoadingIcon />
+        }
+    }
+</div>
 
 
 @code {
@@ -145,7 +150,7 @@ else
 
     public NewCommentDto commentModel { get; set; }
 
-    public string Error { get; set; }
+    public string Error { get; set; } = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -158,40 +163,19 @@ else
 
     }
 
-    public async Task<UserProfileDto> GetUserProfile()
+    public async Task<UserProfileDto?> GetUserProfile()
     {
         var response = await userService.GetUserProfile(Id);
 
-        if(response.Success)
+        if (response.Success)
         {
             return response.Data!;
         }
         else
         {
             Error = response.Message;
+            return null;
         }
-
-        return new UserProfileDto
-            {
-                Id = 1,
-                FirstName = "Ania",
-                LastName = "Doe",
-                BirthYear = 1990,
-                City = "New York",
-                PersonalInfo = "I love playing volleyball! volleyballvolleyball volleyball volleyball volleyball volleyball volleyball volleyball volleyball ",
-                Photo = null,
-                Gender = true,
-                Height = 180,
-                Weight = 75,
-                JerseyNumber = 10,
-                BlockRange = 280,
-                AttackRange = 300,
-                VolleyballIdol = "Misty May-Treanor",
-                Hobby = "Hiking",
-                PositionName = "Middle Blocker",
-                Comments = new List<CommentDto>()
-            };
-
     }
 
     private async Task HandleValidSubmit()

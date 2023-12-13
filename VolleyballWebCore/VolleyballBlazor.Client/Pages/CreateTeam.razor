@@ -26,7 +26,7 @@
 
         <h5>Zawodnicy</h5>
         <p class="text-danger"><ValidationMessage For="@(() => NewTeam.Players)"></ValidationMessage></p>
-        <table class="table table-responsive">
+        <table class="table table-responsive table-sm">
             <thead>
                 <tr>
                     <th>Lp</th>
@@ -172,7 +172,7 @@ else
         IsLoading = false;
         if (response.Success)
         {
-            navigationManager.NavigateTo("/Teams");
+            navigationManager.NavigateTo("/ManageTeam");
         }
         else
         {

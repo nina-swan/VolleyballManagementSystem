@@ -18,6 +18,9 @@ namespace VolleyballBlazor.Infrastructure.Client.Services
         public Task<ApiResponse> UpdateTeamPlayer(PlayerSummaryDto teamPlayer);
         public Task<ApiResponse<List<TeamDto>>> GetTeamsByLeague(int leagueId);
         public Task<ApiResponse<ManagedTeamDataDto>> GetManagedTeam();
+        public Task<ApiResponse<List<LeagueDto>>> GetLeagues();
+        public Task<ApiResponse<List<SeasonDto>>> GetSeasons();
+
     }
 
     public class TeamService : ITeamService
@@ -37,7 +40,7 @@ namespace VolleyballBlazor.Infrastructure.Client.Services
 
         public async Task<ApiResponse<TeamDto>> GetTeam(int id)
         {
-            var response = await _httpClient.GetAsync($"api/team/{id}");
+            var response = await _httpClient.GetAsync($"api/team/id/{id}");
             return new ApiResponse<TeamDto>(response);
         }
 
@@ -67,7 +70,7 @@ namespace VolleyballBlazor.Infrastructure.Client.Services
 
         public async Task<ApiResponse> DeleteTeam(int id)
         {
-            var response = await _httpClient.DeleteAsync($"api/team/{id}");
+            var response = await _httpClient.DeleteAsync($"api/team/id/{id}");
             return new ApiResponse(response);
         }
 
@@ -84,6 +87,24 @@ namespace VolleyballBlazor.Infrastructure.Client.Services
         }
 
 
+
+
+        // get leagues
+        public async Task<ApiResponse<List<LeagueDto>>> GetLeagues()
+        {
+            try
+            {
+                using (var response = await _httpClient.GetAsync($"api/team/leagues"))
+                {
+                    return new ApiResponse<List<LeagueDto>>(response);
+                }
+            }
+            catch
+            {
+                return ApiResponse<List<LeagueDto>>.NetworkErrorResponse;
+            }
+        }
+
         // check if user has a team
         public async Task<ApiResponse<bool>> CheckIfUserHasTeam()
         {
@@ -97,6 +118,22 @@ namespace VolleyballBlazor.Infrastructure.Client.Services
             catch
             {
                 return ApiResponse<bool>.NetworkErrorResponse;
+            }
+        }
+
+        // get seasons
+        public async Task<ApiResponse<List<SeasonDto>>> GetSeasons()
+        {
+            try
+            {
+                using (var response = await _httpClient.GetAsync($"api/team/seasons"))
+                {
+                    return new ApiResponse<List<SeasonDto>>(response);
+                }
+            }
+            catch
+            {
+                return ApiResponse<List<SeasonDto>>.NetworkErrorResponse;
             }
         }
     }

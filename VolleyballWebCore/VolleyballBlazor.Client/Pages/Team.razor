@@ -1,22 +1,22 @@
 ﻿@page "/team/{Id:int}"
+@inject ITeamService teamService
 
-
-@if (TeamData != null)
-{
-    <div class="text-center">
+<div class="text-center">
+    @if (TeamData != null)
+    {
         <div>
             @if (TeamData.Photo != null)
             {
-                <img src="@Convert.ToBase64String(TeamData.Photo)" />
+                <BigImage Image="@TeamData.Photo"></BigImage>
             }
         </div>
         <h2>@TeamData.Name</h2>
         <div class="d-flex flex-row flex-wrap justify-content-center">
 
-            <div class="mr-3 border border-primary">
+            <div class="mr-3 d-flex justify-content-center align-items-center">
                 @if (TeamData.Logo != null)
                 {
-                    <img src="@Convert.ToBase64String(TeamData.Logo)" />
+                    <TeamLogo SizePx="200" Image="@TeamData.Logo"></TeamLogo>
                 }
                 else
                 {
@@ -132,38 +132,41 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var game in Games)
+                    @if (Games != null)
                     {
-                        <tr>
-                            <td>
-                                <NavLink href=@{
+                        @foreach (var game in Games)
+                        {
+                            <tr>
+                                <td>
+                                    <NavLink href=@{
                                  "/match/" + game.Id
                                  }>@game.Schedule</NavLink>
-                            </td>
-                            <td>
-                                <NavLink href=@{
+                                </td>
+                                <td>
+                                    <NavLink href=@{
                                  "/team/" + game.HomeTeam.Id
                                  }>@game.HomeTeam.Name</NavLink>
-                            </td>
-                            <td>@game.Team1Score : @game.Team2Score</td>
-                            <td>
-                                <NavLink href=@{
+                                </td>
+                                <td>@game.Team1Score : @game.Team2Score</td>
+                                <td>
+                                    <NavLink href=@{
                                  "/team/" + game.GuestTeam.Id
                                  }>@game.GuestTeam.Name</NavLink>
-                            </td>
-                            <td>@game.VenueName</td>
-                            <td>@game.RoundName</td>
-                            <td>
-                                <NavLink href=@{
+                                </td>
+                                <td>@game.VenueName</td>
+                                <td>@game.RoundName</td>
+                                <td>
+                                    <NavLink href=@{
                                  "/user-profile/" + game.Referee.Id
                                  }>@game.Referee.FirstName @game.Referee.LastName</NavLink>
-                            </td>
-                            <td>
-                                <NavLink href=@{
+                                </td>
+                                <td>
+                                    <NavLink href=@{
                                  "/user-profile/" + game.MVP.Id
                                  }>@game.MVP.FirstName @game.MVP.LastName</NavLink>
-                            </td>
-                        </tr>
+                                </td>
+                            </tr>
+                        }
                     }
                 </tbody>
             </table>
@@ -208,17 +211,29 @@
                 </EditForm>
             </div>
         </div>
-    </div>
+    }
+    else
+    {
+        @if (ErrorMessage != "")
+        {
+            <div class="alert alert-danger" role="alert">
+                @ErrorMessage
+            </div>
+        }
+        else
+        {
+            <LoadingIcon></LoadingIcon>
+        }
+    }
+</div>
 
-}
-else
-{
-    <p>Loading user profile...</p>
-}
+
 
 
 @code {
     private int i = 1;
+
+    public string ErrorMessage { get; set; } = "";
 
     [Parameter]
     public int Id { get; set; }
@@ -233,13 +248,16 @@ else
 
     public List<MatchDto>? Games { get; set; }
 
-    protected override void OnInitialized()
+    protected override async void OnInitialized()
     {
-        TeamData = GetTeamProfile();
+        TeamData = await GetTeamProfile();
 
-        Seasons = GetSeasons();
+        Seasons = await GetSeasons();
 
-        UpdateSeason(Seasons.First().Id);
+        if (Seasons.Count > 0)
+        {
+            UpdateSeason(Seasons.First().Id);
+        }
 
         commentModel = new NewCommentDto()
             {
@@ -273,6 +291,7 @@ else
                 CreationDate = DateTime.Now
             },
         };
+        StateHasChanged();
     }
 
 
@@ -281,57 +300,19 @@ else
         // todo
     }
 
-    public TeamDto GetTeamProfile()
+    public async Task<TeamDto?> GetTeamProfile()
     {
-        return new TeamDto
-            {
-                Id = 1,
-                Name = "Sample Team",
-                CreationDate = DateTime.Now,
-                League = new LeagueDto
-                {
-                    Id = 1,
-                    Name = "Sample League"
-                },
-                Captain = new PlayerSummaryDto
-                {
-                    Id = 101,
-                    FirstName = "John",
-                    LastName = "Doe",
-                    Photo = new byte[] { 4, 5, 6 },
-                    Height = 180,
-                    JerseyNumber = 10,
-                    PositionName = "Middle Blocker"
-                },
-                Players = new List<PlayerSummaryDto>
-                {
-                    new PlayerSummaryDto
-                    {
-                    Id = 101,
-                    FirstName = "John",
-                    LastName = "Doe",
-                    Photo = new byte[] { 4, 5, 6 },
-                    Height = 180,
-                    JerseyNumber = 10,
-                    PositionName = "Middle Blocker"
-                    },
-                    new PlayerSummaryDto
-                    {
-                    Id = 101,
-                    FirstName = "John",
-                    LastName = "Doe",
-                    Photo = new byte[] { 4, 5, 6 },
-                    Height = 180,
-                    JerseyNumber = 10,
-                    PositionName = "Middle Blocker"
-                    }
-                },
-                Email = "sample@example.com",
-                Logo = null,
-                Phone = "987-654-3210",
-                TeamDescription = "A sample volleyball team",
-                Website = "https://www.sampleteam.com"
-            };
+        var teamResponse = await teamService.GetTeam(Id);
+
+        if (teamResponse.Success)
+        {
+            return teamResponse.Data;
+        }
+        else
+        {
+            ErrorMessage = teamResponse.Message;
+            return null;
+        }
     }
 
 
@@ -345,6 +326,7 @@ else
 
     private void UpdateSeason(int id)
     {
+        Console.WriteLine("UpdateSeason: " + id);
         var leagueDto = new LeagueDto
             {
                 Id = 1,
@@ -421,20 +403,20 @@ else
 
     }
 
-    public List<SeasonDto> GetSeasons()
+    public async Task<List<SeasonDto>> GetSeasons()
     {
-        return new List<SeasonDto>
+
+        var seasonResponse = await teamService.GetSeasons();
+
+        if (seasonResponse.Success)
         {
-            new SeasonDto
-            {
-                Id = 1,
-                Name = "Wiosna 2020"
-            },
-            new SeasonDto
-            {
-                Id = 2,
-                Name = "Lato 2020"
-            },
-        };
+            return seasonResponse.Data!;
+        }
+        else
+        {
+            ErrorMessage = seasonResponse.Message;
+            return new List<SeasonDto>();
+        }
+
     }
 }

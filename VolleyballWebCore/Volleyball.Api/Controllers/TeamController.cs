@@ -18,7 +18,7 @@ namespace Volleyball.Api.Controllers
             return Ok(await teamDbService.GetAllTeamsAsync());
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("id/{id}")]
         public async Task<IActionResult> GetTeamById(int id)
         {
             var result = await teamDbService.GetTeamByIdAsync(id);   
@@ -128,6 +128,30 @@ namespace Volleyball.Api.Controllers
                 return Unauthorized();
             }
             var result = await teamDbService.UpdateCaptain(captainId, id);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [HttpGet]
+        [Route("leagues")]
+        public async Task<IActionResult> GetLeagues()
+        {
+            var result = await teamDbService.GetLeagues();
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [HttpGet]
+        [Route("seasons")]
+        public async Task<IActionResult> GetSeasons()
+        {
+            var result = await teamDbService.GetSeasons();
             if (result.Success)
             {
                 return Ok(result);

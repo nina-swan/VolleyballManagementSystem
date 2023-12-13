@@ -1,0 +1,29 @@
+﻿@if (Image != null)
+{
+    <div style="width: @(SizePx)px; height: @(SizePx)px" class="mb-2 mt-2 img-thumbnail d-flex justify-content-center align-items-center">
+        <img src="@ImageBase64" style="max-height:100%" class="img-fluid" />
+    </div>
+}
+
+@code {
+    [Parameter]
+    public byte[]? Image { get; set; }
+
+    [Parameter]
+    public int SizePx { get; set; } = 150;
+
+    public string ImageBase64
+    {
+        get
+        {
+            if (Image != null)
+            {
+                return "data:image/png;base64, " + Convert.ToBase64String(Image);
+            }
+            else
+            {
+                return "";
+            }
+        }
+    }
+}
