@@ -16,6 +16,9 @@ namespace VolleyballBlazor.Client.Models
         [ExcludeFromForm]
         public override List<TeamPlayerDto> RemovedPlayers { get; set; } = new List<TeamPlayerDto>();
 
+        [ExcludeFromForm]
+        public override TeamPlayerDto Captain { get; set; } = new TeamPlayerDto();
+
         public ManageTeamModel(ManageTeamDto manageTeam)
         {
             this.Email = manageTeam.Email;
@@ -25,6 +28,7 @@ namespace VolleyballBlazor.Client.Models
             this.Players = manageTeam.Players;
             this.TeamDescription = manageTeam.TeamDescription;
             this.Website = manageTeam.Website;
+            this.Captain = manageTeam.Captain;
         }
 
         public ManageTeamModel()

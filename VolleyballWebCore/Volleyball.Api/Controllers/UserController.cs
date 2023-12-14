@@ -39,7 +39,7 @@ namespace Volleyball.Api.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetUserSummary()
         {
-            string id = User.Identity?.Name;
+            string? id = User.Identity?.Name;
             if (string.IsNullOrWhiteSpace(id))
             {
                 return NotFound();
@@ -117,7 +117,7 @@ namespace Volleyball.Api.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdatePassword(UpdatePasswordDto updatePasswordDto)
         {
-            string id = User.Identity?.Name;
+            string? id = User.Identity?.Name;
 
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -139,7 +139,7 @@ namespace Volleyball.Api.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateUserData(UpdateUserDto updateUserDto)
         {
-            string id = User.Identity?.Name;
+            string? id = User.Identity?.Name;
 
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -178,7 +178,7 @@ namespace Volleyball.Api.Controllers
             string? id = User.Identity?.Name;
             if (string.IsNullOrWhiteSpace(id))
             {
-                return Unauthorized();
+                return BadRequest();
             }
             var result = await userDbService.IsTeamCaptain(id);
             if (result.Success)

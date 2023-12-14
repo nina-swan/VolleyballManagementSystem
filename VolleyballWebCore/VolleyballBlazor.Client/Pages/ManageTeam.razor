@@ -26,6 +26,7 @@
 
         </GenericForm>
         <h5>Zawodnicy</h5>
+        <small class="text-info">Możesz edytować adres email niezarejestrowanych graczy. Jeśli założą konto na podany email, to automatycznie ich konto stanie się członkiem drużyny.</small>
         <p class="text-danger"><ValidationMessage For="@(() => ManagedTeam.Players)"></ValidationMessage></p>
         <table class="table table-responsive table-sm">
             <thead>
@@ -37,16 +38,46 @@
                     <th>Wzrost</th>
                     <th>Pozycja</th>
                     <th>Płeć</th>
-                    @if (ManagedTeam.NewPlayers.Count > 0)
-                    {
-                        <th>Email</th>
-                    }
+                    <th>Email</th>
                     <th>Usuń</th>
                 </tr>
             </thead>
             @{
                 i = 0;
             }
+
+            <tr>
+                <td>@(++i) (K)</td>
+                <td>
+                    <InputText style="max-width:110px" @bind-Value="ManagedTeam.Captain.FirstName" disabled />
+                </td>
+                <td><InputText style="max-width:110px" @bind-Value="ManagedTeam.Captain.LastName" disabled /></td>
+                <td><InputNumber style="max-width:60px" @bind-Value="ManagedTeam.Captain.JerseyNumber" /></td>
+                <td><InputNumber style="max-width:60px" @bind-Value="ManagedTeam.Captain.Height" /></td>
+                <td>
+                    <InputSelect @bind-Value="ManagedTeam.Captain.PositionId">
+                        @foreach (var position in Positions)
+                        {
+                            <option value="@position.Id">@position.Name</option>
+                        }
+                    </InputSelect>
+                </td>
+                <td class="d-flex flex-nowrap align-items-center">
+                    <InputRadioGroup @bind-Value="ManagedTeam.Captain.Gender">
+                        <InputRadio Value="false" class="m-1"></InputRadio>
+                        <label class="mt-1">M</label>
+                        <InputRadio Value="true" class="m-1"></InputRadio>
+                        <label class="mt-1">K</label>
+                    </InputRadioGroup>
+                </td>
+                @if (ManagedTeam.NewPlayers.Count > 0)
+                {
+                    <td></td>
+                }
+                <td>
+                </td>
+            </tr>
+
             @foreach (var player in ManagedTeam.Players)
             {
                 <tr>
@@ -74,10 +105,12 @@
                             <label class="mt-1">K</label>
                         </InputRadioGroup>
                     </td>
-                    @if (ManagedTeam.NewPlayers.Count > 0)
-                    {
-                        <td></td>
-                    }
+                    <td>
+                        @if (!player.IsRegisteredUser)
+                        {
+                            <InputText style="max-width:110px" @bind-Value="player.Email" />
+                        }
+                    </td>
                     <td>
                         <button type="button" class="btn btn-danger" @onclick="() => RemovePlayer(player)"><b>-</b></button>
                     </td>
@@ -162,10 +195,8 @@
                             <label class="m-1">K </label>
                         </InputRadioGroup>
                     </td>
-                    @if (ManagedTeam.NewPlayers.Count > 0)
-                    {
-                        <td></td>
-                    }
+                    <td></td>
+
                     <td>
                         <button type="button" class="btn btn-danger" @onclick="() => UndoRemove(player)"><b>-</b></button>
                     </td>
@@ -203,6 +234,38 @@
 
 
     </EditForm>
+
+    // update captain
+    <EditForm Model="CaptainId" class="form mt-4" OnValidSubmit="UpdateCaptain">
+        <div class="d-flex flex-column">
+            <h4>Zmień kapitana</h4>
+            <p>Obecny kapitan: @Team.Captain.FirstName @Team.Captain.LastName</p>
+            <div class="form-group">
+                <label for="CaptainId">Nowy kapitan:</label>
+                <InputSelect @bind-Value="CaptainId">
+                    @foreach (var player in ManagedTeam.Players.Where(p => p.IsRegisteredUser))
+                    {
+                        <option value="@player.Id">@player.FirstName @player.LastName</option>
+                    }
+                </InputSelect>
+            </div>
+            <p class="text-primary">Uwaga: Zmieniając kapitana stracisz dostęp do zarządzania drużyną. Nowy kapitan musi posiadać własne konto.</p>
+            <div class="d-flex flex-column align-items-center">
+                @if (IsLoadingCaptain)
+                {
+                    <LoadingIcon></LoadingIcon>
+                }
+                else
+                {
+                    <p class="text-danger">@ErrorMessageCaptain </p> <br />
+
+                    <button class="btn btn-primary col-sm-3" disabled="@(CaptainId == 0)" type="submit">Aktualizuj</button>
+                }
+            </div>
+        </div>
+
+
+    </EditForm>
 }
 else
 {
@@ -223,9 +286,11 @@ else
     ManageTeamModel ManagedTeam { get; set; } = new ManageTeamModel();
     List<PositionDto> Positions { get; set; } = new List<PositionDto>();
     ManagedTeamDataDto Team;
+    int CaptainId { get; set; }
     int transfers = 0;
 
-
+    bool IsLoadingCaptain { get; set; } = false;
+    string ErrorMessageCaptain { get; set; } = "";
     int i = 0;
     bool IsLoading { get; set; } = false;
     bool ShowErrorMessage { get; set; } = false;
@@ -308,7 +373,7 @@ else
         if (response.Success)
         {
             //Console.WriteLine(ManagedTeam.Logo.Length);
-            navigationManager.NavigateTo("/ManageTeam", forceLoad:true);
+            navigationManager.NavigateTo("/ManageTeam", forceLoad: true);
         }
         else
         {
@@ -317,5 +382,21 @@ else
             StateHasChanged();
         }
 
+    }
+
+    public async Task UpdateCaptain()
+    {
+        IsLoadingCaptain = true;
+        var response = await teamService.UpdateCaptain(CaptainId);
+        IsLoadingCaptain = false;
+        if (response.Success)
+        {
+            navigationManager.NavigateTo($"team/{Team.Id}", forceLoad: true);
+        }
+        else
+        {
+            ErrorMessageCaptain = response.Message;
+            StateHasChanged();
+        }
     }
 }

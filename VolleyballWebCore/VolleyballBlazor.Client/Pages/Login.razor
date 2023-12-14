@@ -59,10 +59,19 @@
 @code {
     LoginDto user = new LoginDto();
     [Inject]
-    public NavigationManager NavigationManager { get; set; }
+    public NavigationManager NavigationManager { get; set; } = null!;
     public bool ShowAuthError { get; set; }
-    public string Error { get; set; }
+    public string Error { get; set; } = "";
     public bool IsLoading { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await localStorage.GetItemAsync<string>("authToken");
+        if (token != null)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+    }
 
     public async System.Threading.Tasks.Task ExecuteLogin()
     {
@@ -77,9 +86,9 @@
         if (authResult.Success)
         {
             await localStorage.SetItemAsync("authToken", authResult.Data);
-            ((AuthStateProvider)authStateProvider).NotifyUserAuthentication(authResult.Data);
+            ((AuthStateProvider)authStateProvider).NotifyUserAuthentication(authResult.Data!);
             Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", authResult.Data);
-            NavigationManager.NavigateTo("/");
+            NavigationManager.NavigateTo("/", forceLoad:true);
         }
         else
         {

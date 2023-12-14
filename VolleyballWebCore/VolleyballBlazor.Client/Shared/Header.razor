@@ -28,18 +28,22 @@
                     </li>
                     <li class="nav-item dropdown has-submenu menu-large hidden-md-down hidden-sm-down hidden-xs-down">
                         <NavLink class="nav-link" href="/teamslist">Zespoły</NavLink>
-                        <ul class="dropdown-menu megamenu" aria-labelledby="dropdown01">
-                            <li>
-                                @if(IsTeamCaptain)
-                                {
-                                    <NavLink class="nav-link nav-link-dropdown" href="/manageteam">Zarządzaj drużyną</NavLink>
-                                }
-                                else
-                                {
-                                    <NavLink class="nav-link nav-link-dropdown" href="/createteam">Stwórz nową drużynę</NavLink>
-                                }
-                            </li>
-                        </ul>
+                        <AuthorizeView>
+                            <Authorized>
+                                <ul class="dropdown-menu megamenu" aria-labelledby="dropdown01">
+                                    <li>
+                                        @if (IsTeamCaptain)
+                                        {
+                                            <NavLink class="nav-link nav-link-dropdown" href="/manageteam">Zarządzaj drużyną</NavLink>
+                                        }
+                                        else
+                                        {
+                                            <NavLink class="nav-link nav-link-dropdown" href="/createteam">Stwórz nową drużynę</NavLink>
+                                        }
+                                    </li>
+                                </ul>
+                            </Authorized>
+                        </AuthorizeView>
                     </li>
                     <li class="nav-item">
                         <NavLink class="nav-link" href="/schedule">Terminarz</NavLink>
@@ -77,14 +81,24 @@
 @code {
 
     [Inject]
-    public NavigationManager NavigationManager { get; set; }
+    public NavigationManager NavigationManager { get; set; } = null!;
 
     public bool IsTeamCaptain { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await userService.IsTeamCaptain();
-        IsTeamCaptain = result.Data;
+        var authstate = await authStateProvider.GetAuthenticationStateAsync();
+
+        if (authstate.User.Identity.IsAuthenticated)
+        {
+            var userHasTeam = await userService.IsTeamCaptain();
+            if (!userHasTeam.Success)
+            {
+                return;
+            }
+
+            IsTeamCaptain = userHasTeam.Data;
+        }
     }
 
     public async void Logout()

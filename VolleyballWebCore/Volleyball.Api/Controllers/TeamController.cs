@@ -120,7 +120,7 @@ namespace Volleyball.Api.Controllers
         [HttpPut]
         [Authorize]
         [Route("updatecaptain")]
-        public async Task<IActionResult> UpdateCaptain(int captainId)
+        public async Task<IActionResult> UpdateCaptain([FromBody]int captainId)
         {
             string? id = User.Identity?.Name;
             if (string.IsNullOrWhiteSpace(id))

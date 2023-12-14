@@ -40,7 +40,8 @@ namespace Volleyball.DTO.Teams
                 JerseyNumber = user.JerseyNumber ?? 0,
                 PositionId = user.PositionId,
                 Gender = user.Gender,
-                IsRegisteredUser = user.Credentials != null
+                IsRegisteredUser = user.Credentials != null,
+                Email = user.Credentials == null ? user.AdditionalEmail : null
             };
         }
 
@@ -55,6 +56,8 @@ namespace Volleyball.DTO.Teams
                 JerseyNumber = teamPlayer.Player.JerseyNumber ?? 0,
                 PositionId = teamPlayer.Player.PositionId,
                 Gender = teamPlayer.Player.Gender,
+                IsRegisteredUser = teamPlayer.Player.Credentials != null,
+                Email = teamPlayer.Player.Credentials == null ? teamPlayer.Player.AdditionalEmail : null
             };
         }
 

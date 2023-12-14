@@ -15,11 +15,11 @@ namespace VolleyballBlazor.Infrastructure.Client.Services
         public Task<ApiResponse> CreateTeam(NewTeamDto team);
         public Task<ApiResponse> UpdateTeam(ManageTeamDto team);
         public Task<ApiResponse> DeleteTeam(int id);
-        public Task<ApiResponse> UpdateTeamPlayer(PlayerSummaryDto teamPlayer);
         public Task<ApiResponse<List<TeamDto>>> GetTeamsByLeague(int leagueId);
         public Task<ApiResponse<ManagedTeamDataDto>> GetManagedTeam();
         public Task<ApiResponse<List<LeagueDto>>> GetLeagues();
         public Task<ApiResponse<List<SeasonDto>>> GetSeasons();
+        public Task<ApiResponse> UpdateCaptain(int playerId);
 
     }
 
@@ -74,15 +74,9 @@ namespace VolleyballBlazor.Infrastructure.Client.Services
             return new ApiResponse(response);
         }
 
-        public async Task<ApiResponse> UpdateTeamPlayer(PlayerSummaryDto teamPlayer)
-        {
-            var response = await _httpClient.PutAsJsonAsync($"api/updateTeamPlayer", teamPlayer);
-            return new ApiResponse(response);
-        }
-
         public async Task<ApiResponse> UpdateCaptain(int playerId)
         {
-            var response = await _httpClient.PutAsJsonAsync($"api/updateCaptain", playerId);
+            var response = await _httpClient.PutAsJsonAsync($"api/team/updateCaptain", playerId);
             return new ApiResponse(response);
         }
 

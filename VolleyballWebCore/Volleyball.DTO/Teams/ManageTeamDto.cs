@@ -12,6 +12,8 @@ namespace Volleyball.DTO.Teams
     {
         public virtual List<TeamPlayerDto> Players { get; set; } = null!;
 
+        public virtual TeamPlayerDto Captain { get; set; } = null!;
+
         [Display(Name = "Email drużynowy")]
         [Required(ErrorMessage = "Email jest wymagany.")]
         public string Email { get; set; } = null!;
@@ -40,6 +42,7 @@ namespace Volleyball.DTO.Teams
         {
             return new ManageTeamDto
             {
+                Captain = team.Captain,
                 Email = team.Email,
                 Logo = team.Logo,
                 Photo = team.Photo,

@@ -28,9 +28,45 @@ namespace VolleyballDomain.Shared.Services
         {
             var response = new ServiceResponse();
 
-            var user = ConvertToUser(registerDto);
+            var existingUser = _context.Users.Include(u => u.Credentials).FirstOrDefault(u => u.Credentials != null && u.Credentials.Email == registerDto.Email);
 
-            _context.Users.Add(user);
+            if (existingUser != null)
+            {
+                response.Success = false;
+                response.Message = "Adres e-mail jest już w użyciu.";
+                return response;
+            }
+
+            var user = _context.Users.Include(u => u.Credentials).FirstOrDefault(u => u.AdditionalEmail == registerDto.Email);
+
+            if (user != null && user.Credentials == null)
+            {
+                // someone has added this email to a team
+                user.FirstName = registerDto.FirstName;
+                user.LastName = registerDto.LastName;
+                user.Phone = registerDto.PhoneNumber;
+                user.PositionId = registerDto.PositionId;
+                user.BirthYear = registerDto.BirthYear;
+                user.Height = (byte?)registerDto.Height;
+                user.Weight = (byte?)registerDto.Weight;
+                user.JerseyNumber = (byte?)registerDto.JerseyNumber;
+                user.AttackRange = (byte?)registerDto.AttackRange;
+                user.BlockRange = (byte?)registerDto.BlockRange;
+                user.VolleyballIdol = registerDto.VolleyballIdol;
+                user.AdditionalEmail = registerDto.AdditionalEmail;
+                user.PersonalInfo = registerDto.PersonalInfo;
+                user.City = registerDto.City;
+                user.Hobby = registerDto.Hobby;
+            }
+            else
+            {
+                user = ConvertToUser(registerDto);
+                _context.Users.Add(user);
+            }
+
+
+
+
             var credentials = new Credentials
             {
                 Email = registerDto.Email,
@@ -48,7 +84,8 @@ namespace VolleyballDomain.Shared.Services
             catch (Exception e)
             {
                 response.Success = false;
-                response.Message = e.Message;
+                response.Message = e.ToString();
+                //response.Message = "Błąd zapisu danych. Spróbuj ponownie później";
             }
             return response;
         }
@@ -150,6 +187,7 @@ namespace VolleyballDomain.Shared.Services
 
             var player = new PlayerSummaryDto()
             {
+                Id = credentials.User.Id,
                 FirstName = credentials.User.FirstName,
                 LastName = credentials.User.LastName,
                 Photo = credentials.User.Photo,
@@ -223,22 +261,6 @@ namespace VolleyballDomain.Shared.Services
             return hash;
 
         }
-
-        private static string GetHashString(string inputString)
-        {
-            StringBuilder sb = new StringBuilder();
-            foreach (byte b in GetHash(inputString))
-                sb.Append(b.ToString("X2"));
-
-            return sb.ToString();
-        }
-
-        private static byte[] GetHash(string inputString)
-        {
-            using (HashAlgorithm algorithm = SHA256.Create())
-                return algorithm.ComputeHash(Encoding.UTF8.GetBytes(inputString));
-        }
-
 
         private string PepperPassowrd(string password)
         {

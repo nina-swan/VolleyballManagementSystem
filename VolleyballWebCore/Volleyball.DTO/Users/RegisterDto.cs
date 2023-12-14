@@ -41,6 +41,8 @@ namespace Volleyball.DTO.Users
         [Range(20, 500, ErrorMessage = "Podaj prawidłową wagę w kilogramach")]
         public int? Weight { get; set; }
 
+        public byte[]? Photo { get; set; }
+
         public string? Hobby { get; set; }
 
         public int? JerseyNumber { get; set; }

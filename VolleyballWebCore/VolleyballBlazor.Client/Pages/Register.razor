@@ -1,7 +1,7 @@
 ﻿@page "/register"
 @using System.ComponentModel.DataAnnotations
 @inject IUserService UserService
-
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
 <h3>Rejestracja</h3>
 
 <div class="m-2">
@@ -50,7 +50,7 @@
                     <InputSelect id="PositionId" @bind-Value="registerModel.PositionId">
                         @foreach (var position in Positions)
                         {
-                            <option value="@position.Id">@position.Name</option>
+                            <option value="@position.Id" selected>@position.Name</option>
                         }
                     </InputSelect>
                 </div>
@@ -193,6 +193,9 @@
     private string ErrorMessage = "";
 
     private List<PositionDto> Positions = new List<PositionDto>();
+    [Inject]
+    public NavigationManager NavigationManager { get; set; } = null!;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -208,6 +211,14 @@
         {
             Positions = new List<PositionDto>() { new PositionDto { Id = 1, Name = positionResult.Message } };
         }
+
+        var token = await localStorage.GetItemAsync<string>("authToken");
+        if (token != null)
+        {
+            NavigationManager.NavigateTo("/");
+
+        }
+        registerModel.PositionId = Positions.First().Id;
     }
 
     private async Task HandleValidSubmit()

@@ -152,8 +152,8 @@ namespace Volleyball.DbServices.Services
 
             var teamToUpdate = await context.Teams
                 .Include(u => u.Captain)
-                .Include(t => t.TeamPlayers).ThenInclude(t => t.Player)
-                .FirstOrDefaultAsync(t => t.Captain.Credentials.Email == email);
+                .Include(t => t.TeamPlayers).ThenInclude(t => t.Player).ThenInclude(p => p.Credentials)
+                .FirstOrDefaultAsync(t => t.Captain.Credentials!.Email == email);
 
             if (teamToUpdate == null)
             {
@@ -169,6 +169,10 @@ namespace Volleyball.DbServices.Services
             teamToUpdate.TeamDescription = team.TeamDescription;
             teamToUpdate.Website = team.Website;
 
+            teamToUpdate.Captain.JerseyNumber = (byte?)team.Captain.JerseyNumber;
+            teamToUpdate.Captain.Height = (byte?)team.Captain.Height;
+            teamToUpdate.Captain.PositionId = team.Captain.PositionId;
+            teamToUpdate.Captain.Gender = team.Captain.Gender;
 
             foreach (var player in team.Players)
             {
@@ -179,6 +183,10 @@ namespace Volleyball.DbServices.Services
                     playerToUpdate.Player.Height = (byte?)player.Height;
                     playerToUpdate.Player.PositionId = player.PositionId;
                     playerToUpdate.Player.Gender = player.Gender;
+                    if (playerToUpdate.Player.Credentials == null)
+                    {
+                        playerToUpdate.Player.AdditionalEmail = player.Email;
+                    }
                 }
             }
 
@@ -196,7 +204,7 @@ namespace Volleyball.DbServices.Services
                 JoinDate = DateTime.Now
             }).ToList());
 
-            foreach(var player in team.NewPlayers)
+            foreach (var player in team.NewPlayers)
             {
                 var user = await context.Credentials.Include(c => c.User).FirstOrDefaultAsync(c => c.Email == player.Email);
                 if (user != null)
@@ -218,19 +226,20 @@ namespace Volleyball.DbServices.Services
                             Height = (byte?)player.Height,
                             JerseyNumber = (byte?)player.JerseyNumber,
                             PositionId = player.PositionId,
-                            Credentials = null
+                            Credentials = null,
+                            AdditionalEmail = player.Email
                         },
                         JoinDate = DateTime.Now
                     });
 
-                    if(player.Email != null)
+                    if (player.Email != null)
                     {
                         SendEmailAddedToTeam(player);
                     }
                 }
             }
 
-            foreach(var player in team.RemovedPlayers)
+            foreach (var player in team.RemovedPlayers)
             {
                 var playerToRemove = teamToUpdate.TeamPlayers.FirstOrDefault(p => p.Player.Id == player.Id);
                 if (playerToRemove != null)
@@ -291,9 +300,9 @@ namespace Volleyball.DbServices.Services
 
             var team = await context.Teams
                 .Include(t => t.League)
-                .Include(u => u.Captain)
+                .Include(u => u.Captain).ThenInclude(c => c.Credentials)
                 .Include(t => t.TeamPlayers).ThenInclude(t => t.Player).ThenInclude(p => p.Credentials)
-                .FirstOrDefaultAsync(t => t.Captain.Credentials.Email == email);
+                .FirstOrDefaultAsync(t => t.Captain.Credentials!.Email == email);
 
             if (team == null)
             {
@@ -332,7 +341,8 @@ namespace Volleyball.DbServices.Services
             var team = await context.Teams
                 .Include(t => t.League)
                 .Include(u => u.Captain)
-                .FirstOrDefaultAsync(t => t.Captain.Credentials.Email == email);
+                .Include(t => t.TeamPlayers)
+                .FirstOrDefaultAsync(t => t.Captain.Credentials!.Email == email);
 
             if (team == null)
             {
@@ -344,15 +354,24 @@ namespace Volleyball.DbServices.Services
             var newCaptain = await context.Users
                 .FirstOrDefaultAsync(u => u.Id == newCaptainId);
 
-
+            var oldCaptainId = team.Captain.Id;
 
             if (newCaptain == null)
             {
                 response.Success = false;
-                response.Message = "User not found";
+                response.Message = "Nie znaleziono użytkownika";
                 return response;
             }
             team.Captain = newCaptain;
+            team.TeamPlayers.Remove(team.TeamPlayers.FirstOrDefault(p => p.PlayerId == newCaptainId)!);
+
+
+            team.TeamPlayers.Add(new TeamPlayer
+            {
+                PlayerId = oldCaptainId,
+                JoinDate = DateTime.Now
+            });
+
             try
             {
                 await context.SaveChangesAsync();

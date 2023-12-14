@@ -30,7 +30,6 @@ namespace VolleyballBlazor.Infrastructure.Client.Services
         public UserService(HttpClient httpClient)
         {
             _httpClient = httpClient;
-            //_httpClient.BaseAddress = new Uri("https://localhost:7213/");
         }   
 
         public async Task<ApiResponse> Register(RegisterDto registerDto)
