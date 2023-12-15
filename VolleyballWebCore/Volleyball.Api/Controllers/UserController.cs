@@ -61,7 +61,7 @@ namespace Volleyball.Api.Controllers
         // Log in
         [Route("login")]
         [HttpPost]
-        public  IActionResult Login(LoginDto loginDto)
+        public IActionResult Login(LoginDto loginDto)
         {
 
             var serviceResult = userDbService.Login(loginDto, out Credentials? credentials);
@@ -161,11 +161,9 @@ namespace Volleyball.Api.Controllers
         public async Task<IActionResult> GetUserProfile(int id)
         {
             var result = await userDbService.GetUserProfileAsync(id);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+
+            return Ok(result);
+
         }
 
 

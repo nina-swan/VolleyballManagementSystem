@@ -1,5 +1,6 @@
 ﻿@page "/team/{Id:int}"
 @inject ITeamService teamService
+@inject IDiscussionService discussionService
 
 <div class="text-center">
     @if (TeamData != null)
@@ -173,41 +174,60 @@
 
         </div>
 
+
+
         <div class="text-left">
             <h4>Komentarze</h4>
-            @foreach (var Comment in ProfileComments)
+            @if (CommentsErrorMessage != "")
             {
-                <div class="flex-row d-flex mb-4">
-                    <div>
-                        @if (Comment.Author.Photo != null)
-                        {
-                            <img class="img-thumbnail" style="width: 100px" src="@Convert.ToBase64String(Comment.Author.Photo)">
-                        }
-                        else
-                        {
-                            <img class="img-thumbnail" style="width: 100px" src="/images/user.png">
-                        }
-
-                    </div>
-                    <div class="mr-3"></div>
-                    <div>
-                        <small>
-                            @Comment.CreationDate przez <NavLink href=@{
-                                                         "/user-profile/" + Comment.Author.Id
-                                                         }>@Comment.Author.FirstName @Comment.Author.LastName</NavLink>
-                        </small>
-                        <p>@Comment.Content</p>
-                    </div>
+                <div class="alert alert-danger" role="alert">
+                    <b>Nie udało się załadować komentarzy:</b> @CommentsErrorMessage
                 </div>
             }
+
+            <Pagination Items="TeamComments" PageSize="5">
+                <ItemTemplate>
+                    <div class="flex-row d-flex mb-4">
+                        <div>
+                            @if (@context.Author.Photo != null)
+                            {
+                                <TeamLogo Logo="@context.Author.Photo" SizePx="70" />
+                            }
+                            else
+                            {
+                                <img class="img-thumbnail" style="width: 70px" src="/images/user.png">
+                            }
+
+                        </div>
+                        <div class="mr-3"></div>
+                        <div>
+                            <small>
+                                @context.CreationDate przez <NavLink href=@{
+                                                                 "/user-profile/" + @context.Author.Id
+                                                                 }>@context.Author.FirstName @context.Author.LastName</NavLink>
+                            </small>
+                            <p>@context.Content</p>
+                        </div>
+                    </div>
+                </ItemTemplate>
+            </Pagination>
             <div class="mb-4">
                 <EditForm Model="@commentModel" OnValidSubmit="HandleValidSubmit">
+                    <DataAnnotationsValidator />
                     <div class="form-group">
                         <label class="row-form-label" for="Comment">Dodaj komentarz:</label>
                         <InputTextArea class="form-control" id="Comment" @bind-Value="commentModel.Content" />
-                        <ValidationMessage For="@(() => commentModel.Content)" />
+                        <ValidationMessage class="text-danger" For="@(() => commentModel.Content)" />
                     </div>
-                    <button type="submit" class="btn btn-primary">Dodaj</button>
+                    <p class="text-danger">@NewCommentError</p>
+                    @if (SubmitLoading)
+                    {
+                        <LoadingIcon />
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-primary">Dodaj</button>
+                    }
                 </EditForm>
             </div>
         </div>
@@ -235,18 +255,24 @@
 
     public string ErrorMessage { get; set; } = "";
 
+    public string CommentsErrorMessage { get; set; } = "";
+
     [Parameter]
     public int Id { get; set; }
 
     public TeamDto? TeamData { get; set; }
 
-    public List<CommentDto> ProfileComments { get; set; }
+    public List<CommentDto> TeamComments { get; set; } = new List<CommentDto>();
 
     public List<SeasonDto>? Seasons { get; set; }
 
-    public NewCommentDto commentModel { get; set; }
+    public NewCommentDto commentModel { get; set; } = new NewCommentDto();
 
     public List<MatchDto>? Games { get; set; }
+
+    public bool SubmitLoading { get; set; } = false;
+
+    public string NewCommentError { get; set; } = "";
 
     protected override async void OnInitialized()
     {
@@ -259,45 +285,48 @@
             UpdateSeason(Seasons.First().Id);
         }
 
+        await DownloadComments();
+
         commentModel = new NewCommentDto()
             {
-                CommentLocation = Id,
+                ContentLocationId = Id,
             };
 
-        ProfileComments = new List<CommentDto>
-        {
-            new CommentDto
-            {
-                Id = 1,
-                Author = new AuthorInfoDto
-                {
-                    Id = 1,
-                    FirstName = "John",
-                    LastName = "Doe"
-                },
-                Content = "Super drużyna!",
-                CreationDate = DateTime.Now
-            },
-            new CommentDto
-            {
-                Id = 1,
-                Author = new AuthorInfoDto
-                {
-                    Id = 1,
-                    FirstName = "John",
-                    LastName = "Doe",
-                },
-                Content = "Super drużyna!",
-                CreationDate = DateTime.Now
-            },
-        };
+
         StateHasChanged();
     }
+
+    public async Task DownloadComments()
+    {
+        var commentsResponse = await discussionService.GetTeamComments(Id);
+
+        if (commentsResponse.Success)
+        {
+            TeamComments = commentsResponse.Data!;
+        }
+        else
+        {
+            CommentsErrorMessage = commentsResponse.Message;
+        }
+    }
+
 
 
     private async Task HandleValidSubmit()
     {
-        // todo
+        NewCommentError = "";
+        SubmitLoading = true;
+        var result = await discussionService.AddTeamComment(commentModel);
+        SubmitLoading = false;
+        if (result.Success)
+        {
+            commentModel.Content = "";
+            await DownloadComments();
+        }
+        else
+        {
+            NewCommentError = result.Message;
+        }
     }
 
     public async Task<TeamDto?> GetTeamProfile()

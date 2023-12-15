@@ -285,7 +285,7 @@ else
 @code {
     ManageTeamModel ManagedTeam { get; set; } = new ManageTeamModel();
     List<PositionDto> Positions { get; set; } = new List<PositionDto>();
-    ManagedTeamDataDto Team;
+    ManagedTeamDataDto Team = null!;
     int CaptainId { get; set; }
     int transfers = 0;
 

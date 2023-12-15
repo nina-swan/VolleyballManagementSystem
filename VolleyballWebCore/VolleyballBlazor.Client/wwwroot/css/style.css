@@ -237,8 +237,6 @@ a:focus {
 }
 
 .btn-primary,
-.page-link:hover,
-.page-link:focus,
 .btn-primary:hover,
 .btn-primary:focus {
     color: #ffffff !important;

@@ -2,6 +2,7 @@
 @page "/user-profile/{Id:int}"
 
 @inject IUserService userService
+@inject IDiscussionService discussionService
 
 
 <div class="d-flex flex-row justify-content-center">
@@ -14,7 +15,7 @@
                 <div class="p-2" style="width: 150px; height: 200px">
                     @if (UserProfileData.Photo != null)
                     {
-                        <TeamLogo Logo="@UserProfileData.Photo" SizePx="150"/>
+                        <TeamLogo Logo="@UserProfileData.Photo" SizePx="150" />
                     }
                     else
                     {
@@ -86,39 +87,56 @@
 
             <div class="text-left">
                 <h4>Komentarze</h4>
-                @foreach (var Comment in UserProfileData.Comments)
+                @if (CommentsError != "")
                 {
-                    <div class="flex-row d-flex mb-4">
-                        <div>
-                            @if (Comment.Author.Photo != null)
-                            {
-                                <img class="img-thumbnail" style="width: 100px" src="@Convert.ToBase64String(Comment.Author.Photo)">
-                            }
-                            else
-                            {
-                                <img class="img-thumbnail" style="width: 100px" src="/images/user.png">
-                            }
-
-                        </div>
-                        <div class="mr-3"></div>
-                        <div>
-                            <small>
-                                @Comment.CreationDate przez <NavLink href=@{
-                                                             "/user-profile/" + Comment.Author.Id
-                                                             }>@Comment.Author.FirstName @Comment.Author.LastName</NavLink>
-                            </small>
-                            <p>@Comment.Content</p>
-                        </div>
+                    <div class="alert alert-danger" role="alert">
+                        <b>Nie udało się załadować komentarzy:</b> @CommentsError
                     </div>
                 }
+
+                <Pagination Items="ProfileComments" PageSize="5">
+                    <ItemTemplate>
+                        <div class="flex-row d-flex mb-4">
+                            <div>
+                                @if (@context.Author.Photo != null)
+                                {
+                                    <TeamLogo Logo="@context.Author.Photo" SizePx="70" />
+                                }
+                                else
+                                {
+                                    <img class="img-thumbnail" style="width: 70px" src="/images/user.png">
+                                }
+
+                            </div>
+                            <div class="mr-3"></div>
+                            <div>
+                                <small>
+                                    @context.CreationDate przez <NavLink href=@{
+                                                                     "/user-profile/" + @context.Author.Id
+                                                                     }>@context.Author.FirstName @context.Author.LastName</NavLink>
+                                </small>
+                                <p>@context.Content</p>
+                            </div>
+                        </div>
+                    </ItemTemplate>
+                </Pagination>
                 <div class="mb-4">
                     <EditForm Model="@commentModel" OnValidSubmit="HandleValidSubmit">
+                        <DataAnnotationsValidator />
                         <div class="form-group">
                             <label class="row-form-label" for="Comment">Dodaj komentarz:</label>
                             <InputTextArea class="form-control" id="Comment" @bind-Value="commentModel.Content" />
-                            <ValidationMessage For="@(() => commentModel.Content)" />
+                            <ValidationMessage class="text-danger" For="@(() => commentModel.Content)" />
                         </div>
-                        <button type="submit" class="btn btn-primary">Dodaj</button>
+                        <p class="text-danger">@NewCommentError</p>
+                        @if (SubmitLoading)
+                        {
+                            <LoadingIcon />
+                        }
+                        else
+                        {
+                            <button type="submit" class="btn btn-primary">Dodaj</button>
+                        }
                     </EditForm>
                 </div>
             </div>
@@ -146,21 +164,48 @@
 
     public UserProfileDto? UserProfileData { get; set; }
 
-    public List<CommentDto> ProfileComments { get; set; }
+    public List<CommentDto> ProfileComments { get; set; } = new List<CommentDto>();
 
-    public NewCommentDto commentModel { get; set; }
+    public NewCommentDto commentModel { get; set; } = null!;
 
     public string Error { get; set; } = "";
 
-    protected override async Task OnInitializedAsync()
+    public string CommentsError { get; set; } = "";
+
+    public bool SubmitLoading { get; set; } = false;
+
+    public string NewCommentError { get; set; } = "";
+
+    protected override async void OnParametersSet()
     {
+        Console.WriteLine("OnParametersSet");
         UserProfileData = await GetUserProfile();
+        if (UserProfileData != null)
+        {
+            await GetComments();
+        }
 
         commentModel = new NewCommentDto()
             {
-                CommentLocation = Id,
+                ContentLocationId = Id,
             };
+        StateHasChanged();
+        base.OnParametersSet();
+    }
 
+    public async Task GetComments()
+    {
+
+        var commentsResult = await discussionService.GetProfileComments(Id);
+
+        if (commentsResult.Success)
+        {
+            ProfileComments = commentsResult.Data!;
+        }
+        else
+        {
+            CommentsError = commentsResult.Message;
+        }
     }
 
     public async Task<UserProfileDto?> GetUserProfile()
@@ -180,6 +225,18 @@
 
     private async Task HandleValidSubmit()
     {
-        // todo
+        NewCommentError = "";
+        SubmitLoading = true;
+        var result = await discussionService.AddProfileComment(commentModel);
+        SubmitLoading = false;
+        if (result.Success)
+        {
+            commentModel.Content = "";
+            await GetComments();
+        }
+        else
+        {
+            NewCommentError = result.Message;
+        }
     }
 }

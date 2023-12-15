@@ -120,11 +120,11 @@ else
 
 @code {
     NewTeam NewTeam { get; set; } = new NewTeam();
-    List<PositionDto> Positions { get; set; }
+    List<PositionDto> Positions { get; set; } = new List<PositionDto>();
     int i = 0;
     bool IsLoading { get; set; } = false;
     bool ShowErrorMessage { get; set; } = false;
-    string ErrorMessage { get; set; }
+    string ErrorMessage { get; set; } = "";
     bool PageReady { get; set; } = false;
 
     protected override async Task OnInitializedAsync()
@@ -152,7 +152,7 @@ else
             ErrorMessage = positionsResult.Message;
             return;
         }
-        Positions = positionsResult.Data;
+        Positions = positionsResult.Data!;
 
         AddPlayer();
 

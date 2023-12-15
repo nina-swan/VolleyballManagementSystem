@@ -27,8 +27,6 @@ namespace Volleyball.DTO.Users
         public string? Hobby { get; set; }
         public string? PositionName { get; set; }
 
-        public List<CommentDto> Comments { get; set; }
-
         // cast operator User to UserProfileDto
         public static explicit operator UserProfileDto(User user)
         {

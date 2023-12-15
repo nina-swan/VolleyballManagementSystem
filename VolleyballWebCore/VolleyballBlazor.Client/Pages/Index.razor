@@ -1,25 +1,44 @@
 ﻿@page "/"
+@inject IDiscussionService discussionService
+
 <section class="section">
     <div class="container">
         <div class="row">
-            <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
-                <div class="page-wrapper">
-                    <div class="blog-top clearfix">
-                        <h4 class="pull-left">Aktualności</h4>
-                    </div><!-- end blog-top -->
 
-                    <div class="blog-list clearfix">
-                        @foreach (var Article in Articles)
-                        {
-                            <ArticlePreview Article="Article" />
-                            <hr class="invis">
-                        }
-                    </div>
+            <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12 mt-2">
+                @if (ArticlesLoading)
+                {
+                    <LoadingIcon />
+                }
+                else
+                {
+                    @if (ArticlesError == "")
+                    {
 
-                </div>
+                        <div class="page-wrapper">
+                            <div class="blog-top clearfix">
+                                <h4 class="pull-left">Aktualności</h4>
+                            </div><!-- end blog-top -->
+
+                            <div class="blog-list clearfix">
+                                @foreach (var Article in Articles)
+                                {
+                                    <ArticlePreview Article="Article" />
+                                    <hr class="invis">
+                                }
+                            </div>
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            <b>Błąd wczytywania artykułów:</b> @ArticlesError
+                        </div>
+                    }
+                }
             </div>
 
-            
 
             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
                 <div class="sidebar">
@@ -29,13 +48,13 @@
                         {
                             <div>
                                 <small>@PersonalLog.Date</small>
-                                @if(PersonalLog.Link != null)
+                                @if (PersonalLog.Link != null)
                                 {
                                     <p><NavLink href="@PersonalLog.Link">@PersonalLog.Description</NavLink></p>
                                 }
                                 else
                                 {
-                                <p>@PersonalLog.Description</p>
+                                    <p>@PersonalLog.Description</p>
                                 }
                             </div>
 
@@ -49,19 +68,28 @@
 </section>
 
 @code {
-    ArticleDto[] Articles = new ArticleDto[]
-        {
-            new ArticleDto {
-                Id = 1,
-                Title = "Title Title Title Title Title Title Title Title Title Title ",
-                Content = "Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content ",
-                CreationDate = DateTime.Now,
-                Author = new User { FirstName = "John", LastName = "Doe" }
-            },
-             new ArticleDto { Id = 2, Title = "Let's make an introduction for..", Content = "Content", CreationDate = DateTime.Now,Author = new User { FirstName = "John", LastName = "Doe" } },
-             new ArticleDto { Id = 3, Title = "Did you see the most beautiful..", Content = "Content", CreationDate = DateTime.Now,Author = new User { FirstName = "John", LastName = "Doe" }  }
-        };
+    public List<ArticleDto> Articles { get; set; } = new List<ArticleDto>();
 
+    public string ArticlesError { get; set; } = "";
+
+    public bool ArticlesLoading { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ArticlesLoading = true;
+        var articlesResponse = await discussionService.GetAllArticles();
+
+        if (articlesResponse.Success)
+        {
+            Articles = articlesResponse.Data!;
+        }
+        else
+        {
+            ArticlesError = articlesResponse.Message;
+        }
+        ArticlesLoading = false;
+
+    }
     PersonalLogDto[] personalLogs = new PersonalLogDto[]
     {
         new PersonalLogDto { Id = 1, Description = "Content", Date = DateTime.Now, User = new User { FirstName = "John", LastName = "Doe" }, Link = "wp.pl" },

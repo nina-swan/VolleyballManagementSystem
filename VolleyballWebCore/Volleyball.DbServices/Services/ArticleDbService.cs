@@ -24,13 +24,13 @@ namespace Volleyball.DbServices.Services
             this.context = context;
         }
 
-        public async Task<ServiceResponse<List<ArticleDto>>> GetAllArticlesAsync()
+        public async Task<ServiceResponse<List<ArticleDto>>> GetAllArticles()
         {
             var response = new ServiceResponse<List<ArticleDto>>();
 
             try
             {
-                response.Data = (await context.Articles.ToListAsync()).Select(a => (ArticleDto)a).ToList();
+                response.Data = (await context.Articles.Include(a => a.Author).ToListAsync()).Select(a => (ArticleDto)a).ToList();
             }
             catch (Exception e)
             {
@@ -38,6 +38,30 @@ namespace Volleyball.DbServices.Services
                 response.Message = e.Message;
             }
 
+            return response;
+        }
+
+        public async Task<ServiceResponse<ArticleDto>> GetArticle(int id)
+        {
+            var response = new ServiceResponse<ArticleDto>();
+            try
+            {
+                var article = await context.Articles.Include(a => a.Author).FirstOrDefaultAsync(a => a.Id == id);
+                if (article == null)
+                {
+                    return new ServiceResponse<ArticleDto>
+                    {
+                        Success = false,
+                        Message = "Nie znaleziono artykułu"
+                    };
+                }
+                response.Data = (ArticleDto)article;
+            }
+            catch (Exception e)
+            {
+                response.Success = false;
+                response.Message = e.Message;
+            }
             return response;
         }
 

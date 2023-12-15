@@ -219,8 +219,6 @@ namespace VolleyballDomain.Shared.Services
 
             var player = (UserProfileDto)user;
 
-            player.Comments = comments.Select(c => (CommentDto)c).ToList();
-
             response.Data = player;
 
             return response;

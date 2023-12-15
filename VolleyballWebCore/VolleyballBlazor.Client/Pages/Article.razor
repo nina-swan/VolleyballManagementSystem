@@ -1,26 +1,98 @@
 ﻿@using System.Text;
 @using Volleyball.DTO.Discussion;
+@inject IDiscussionService discussionService
 
 @page "/article/{Id:int}"
 @page "/article/zzz"
 
-<div class="d-flex flex-row justify-content-between">
+<div class="pt-2 d-flex flex-column">
     @if (ArticleData != null)
     {
-        <div class="p-2">
-            <small>@ArticleData.CreationDate</small>
-            <h1>@ArticleData.Title</h1>
+        <div class="d-flex flex-row justify-content-between">
+            <div>
+                <small>@ArticleData.CreationDate</small>
+                <h1>@ArticleData.Title</h1>
 
 
-            <p>@ArticleData.Content</p>
+                <p>@ArticleData.Content</p>
 
 
-            <small>Dodano przez: <NavLink href=@{$"/user-profile/{ArticleData.Author.Id}"}> @ArticleData.Author.FirstName @ArticleData.Author.LastName</NavLink></small>
-            <small>@ArticleData.CreationDate</small>
+                <small>
+                    Dodano przez: <NavLink href=@{
+                                       $"/user-profile/{ArticleData.Author.Id}"
+                                       }> @ArticleData.Author.FirstName @ArticleData.Author.LastName</NavLink>
+                </small>
+                <small>@ArticleData.CreationDate</small>
+            </div>
+            <div class="p-2">
+                <img src="@ArticleData.Image">
+            </div>
         </div>
-        <div class="p-2">
-            <img src="@ArticleData.Image">
+
+        <div class="text-left mt-3">
+            <h4>Komentarze</h4>
+            @if (CommentsErrorMessage != "")
+            {
+                <div class="alert alert-danger" role="alert">
+                    <b>Nie udało się załadować komentarzy:</b> @CommentsErrorMessage
+                </div>
+            }
+
+            <Pagination Items="Comments" PageSize="5">
+                <ItemTemplate>
+                    <div class="flex-row d-flex mb-4">
+                        <div>
+                            @if (@context.Author.Photo != null)
+                            {
+                                <TeamLogo Logo="@context.Author.Photo" SizePx="70" />
+                            }
+                            else
+                            {
+                                <img class="img-thumbnail" style="width: 70px" src="/images/user.png">
+                            }
+
+                        </div>
+                        <div class="mr-3"></div>
+                        <div>
+                            <small>
+                                @context.CreationDate przez <NavLink href=@{
+                                "/user-profile/" + @context.Author.Id
+}>@context.Author.FirstName @context.Author.LastName</NavLink>
+                            </small>
+                            <p>@context.Content</p>
+                        </div>
+                    </div>
+                </ItemTemplate>
+            </Pagination>
+            <div class="mb-4">
+                <EditForm Model="@commentModel" OnValidSubmit="HandleValidSubmit">
+                    <DataAnnotationsValidator />
+                    <div class="form-group">
+                        <label class="row-form-label" for="Comment">Dodaj komentarz:</label>
+                        <InputTextArea class="form-control" id="Comment" @bind-Value="commentModel.Content" />
+                        <ValidationMessage class="text-danger" For="@(() => commentModel.Content)" />
+                    </div>
+                    <p class="text-danger">@NewCommentError</p>
+                    @if (SubmitLoading)
+                    {
+                        <LoadingIcon />
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-primary">Dodaj</button>
+                    }
+                </EditForm>
+            </div>
         </div>
+    }
+    else
+    {
+        @if (ArticleError != "")
+        {
+            <div class="p-2">
+                <div class="alert alert-danger">Błąd ładowania artykułu: @ArticleError</div>
+            </div>
+        }
     }
 </div>
 
@@ -32,25 +104,71 @@
 
     public ArticleDto? ArticleData { get; set; }
 
-    protected override void OnInitialized()
+    public string ArticleError { get; set; } = "";
+
+    public List<CommentDto> Comments { get; set; } = new List<CommentDto>();
+
+    public string CommentsErrorMessage { get; set; } = "";
+
+    public NewCommentDto commentModel { get; set; } = new NewCommentDto();
+
+    public string NewCommentError { get; set; } = "";
+
+    public bool SubmitLoading { get; set; } = false;
+
+
+    protected override async Task OnInitializedAsync()
     {
-        ArticleData = GetArticle();
+        ArticleData = await GetArticle();
+        await DownloadComments();
+        commentModel.ContentLocationId = Id;
     }
 
-    public ArticleDto GetArticle()
+    public async Task<ArticleDto> GetArticle()
     {
-        return new ArticleDto
-            {
-                Id = 1,
-                Title = "Title",
-                Content = "Content ContentContentContentContentContentCont entContentContentContentContentContentContentContentContentContentContentContentContent",
-                CreationDate = DateTime.Now,
-                Author = new User { Id = 1, FirstName = "John", LastName = "Doe" },
-                Image = Encoding.ASCII.GetBytes("https://www.w3schools.com/w3css/img_lights.jpg")
+        var articleResult = await discussionService.GetArticle(Id);
 
-            };
+        if (!articleResult.Success)
+        {
+            ArticleError = articleResult.Message;
+            return null!;
+        }
+        else
+        {
+            return articleResult.Data!;
+        }
 
+    }
 
+    public async Task DownloadComments()
+    {
+        var commentsResponse = await discussionService.GetArticleComments(Id);
+
+        if (commentsResponse.Success)
+        {
+            Comments = commentsResponse.Data!;
+        }
+        else
+        {
+            CommentsErrorMessage = commentsResponse.Message;
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        NewCommentError = "";
+        SubmitLoading = true;
+        var result = await discussionService.AddArticleComment(commentModel);
+        SubmitLoading = false;
+        if (result.Success)
+        {
+            commentModel.Content = "";
+            await DownloadComments();
+        }
+        else
+        {
+            NewCommentError = result.Message;
+        }
     }
 }
 
