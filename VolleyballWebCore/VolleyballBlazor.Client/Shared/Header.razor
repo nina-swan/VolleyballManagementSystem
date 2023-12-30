@@ -54,6 +54,19 @@
                     <li class="nav-item">
                         <NavLink class="nav-link" href="/league">Liga</NavLink>
                     </li>
+                    <AuthorizeView Roles="@VolleyballDomain.Shared.Roles.Arbiter">
+                        <Authorized>
+                            <li class="nav-item dropdown has-submenu menu-large hidden-md-down hidden-sm-down hidden-xs-down">
+                                <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Organizator</a>
+                                <ul class="dropdown-menu megamenu" aria-labelledby="dropdown01">
+                                    <li>
+                                        <NavLink class="nav-link nav-link-dropdown" href="/creatematch">Zorganizuj mecz</NavLink>
+                                    </li>
+                                </ul>
+                            </li>
+                        </Authorized>
+                    </AuthorizeView>
+
                 </ul>
 
                 <ul class="navbar-nav mr-auto">

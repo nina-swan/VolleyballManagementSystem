@@ -6,20 +6,16 @@ using System.Threading.Tasks;
 using Volleyball.DTO.Teams;
 using Volleyball.Infrastructure.Database.Models;
 
-namespace Volleyball.DTO
+namespace Volleyball.DTO.Matches
 {
 
-    public partial class MatchDto
+    public partial class ManageMatchDto
     {
         public int Id { get; set; }
 
         public DateTime Schedule { get; set; }
 
-        public DateTime CreationDate { get; set; }
-
-        public string? VenueName { get; set; }
-
-        public LeagueDto League { get; set; } = null!;
+        public int VenueId { get; set; }
 
         public int Sector { get; set; }
 
@@ -27,13 +23,13 @@ namespace Volleyball.DTO
 
         public int Team2Score { get; set; }
 
-        public string? RoundName { get; set; }
+        public int RefereeId { get; set; }
 
-        public PlayerSummaryDto? Referee { get; set; }
+        public string? UnknownRefereeName { get; set; }
 
         public string? MatchInfo { get; set; }
 
-        public PlayerSummaryDto MVP { get; set; } = null!;
+        public int MvpId { get; set; }
 
         public int? Set1Team1Score { get; set; }
 
@@ -56,11 +52,5 @@ namespace Volleyball.DTO
         public int? Set5Team2Score { get; set; }
 
         public string? MatchLeague { get; set; }
-
-        public TeamDto HomeTeam { get; set; } = null!;
-
-        public TeamDto GuestTeam { get; set; } = null!;
-
-        public ICollection<TypedResult>? TypedResults { get; set; }
     }
 }

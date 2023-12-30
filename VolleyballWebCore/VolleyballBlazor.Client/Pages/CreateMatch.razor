@@ -1,0 +1,31 @@
+﻿@page "/createMatch"
+@inject IMatchOrganizerService matchOrganizerService
+
+<EditForm Model="NewMatch" OnValidSubmit="OnSubmit">
+    <DataAnnotationsValidator />
+
+    <GenericForm Model="NewMatch" EditorClass="form-control">
+        <FieldTemplate Context="field">
+            <div class="form-group">
+                <label for="@field.EditorId">@field.DisplayName</label>
+                @field.EditorTemplate
+                <p class="text-danger">@field.FieldValidationTemplate</p>
+            </div>
+        </FieldTemplate>
+
+
+    </GenericForm>
+</EditForm>
+@code {
+    public NewMatchModel NewMatch { get; set; } = new NewMatchModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        NewMatch.VenueList = (await matchOrganizerService.GetVenues()).Data;
+    }
+
+    public async Task OnSubmit()
+    {
+
+    }
+}

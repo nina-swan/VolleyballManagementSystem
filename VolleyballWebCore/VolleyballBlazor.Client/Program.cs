@@ -15,6 +15,7 @@ builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
 builder.Services.AddScoped<IDiscussionService, DiscussionService>();
+builder.Services.AddScoped<IMatchOrganizerService, MatchOrganizerService>();
 
 builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
 

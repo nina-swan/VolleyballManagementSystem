@@ -21,5 +21,14 @@ namespace Volleyball.DTO.Teams
                 Name = season.Name
             };
         }
+
+        public static explicit operator Season(SeasonDto seasonDto)
+        {
+            return new Season
+            {
+                Id = seasonDto.Id,
+                Name = seasonDto.Name
+            };
+        }
     }
 }

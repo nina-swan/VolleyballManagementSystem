@@ -22,9 +22,19 @@ namespace Volleyball.DTO.Teams
 
         public int? JerseyNumber { get; set; }
 
-        // Method to generate UserSummaryDto from User
-        public static PlayerSummaryDto GenerateUserSummaryDto(User user)
+        public static explicit operator PlayerSummaryDto?(User? user)
         {
+            return GenerateUserSummaryDto(user);
+        }
+
+
+        // Method to generate UserSummaryDto from User
+        public static PlayerSummaryDto? GenerateUserSummaryDto(User? user)
+        {
+            if (user == null)
+            {
+                return null;
+            }
             return new PlayerSummaryDto
             {
                 Id = user.Id,

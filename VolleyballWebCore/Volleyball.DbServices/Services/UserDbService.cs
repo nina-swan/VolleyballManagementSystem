@@ -65,14 +65,14 @@ namespace VolleyballDomain.Shared.Services
             }
 
 
-
+            var playerRole = _context.Roles.First(r => r.Name == Roles.Player);
 
             var credentials = new Credentials
             {
                 Email = registerDto.Email,
                 Password = HashPassword(registerDto.Email, registerDto.Password), // Hash the password
                 User = user,
-                Roles = new List<Role> { new Role { Name = Roles.Player } }
+                Roles = new List<Role> { playerRole }
 
             };
 

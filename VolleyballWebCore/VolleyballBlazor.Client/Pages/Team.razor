@@ -163,8 +163,8 @@
                                 </td>
                                 <td>
                                     <NavLink href=@{
-                                 "/user-profile/" + game.MVP.Id
-                                 }>@game.MVP.FirstName @game.MVP.LastName</NavLink>
+                                 "/user-profile/" + game.Mvp.Id
+                                 }>@game.Mvp.FirstName @game.Mvp.LastName</NavLink>
                                 </td>
                             </tr>
                         }
@@ -399,7 +399,7 @@
                 RoundName = "Kolejka 9",
                 Referee = userSummaryDto,
                 MatchInfo = "Sample match info",
-                MVP = userSummaryDto,
+                Mvp = userSummaryDto,
                 Set1Team1Score = 25,
                 Set2Team1Score = 23,
                 Set3Team1Score = 25,
@@ -413,7 +413,6 @@
                 MatchLeague = "Sample Match League",
                 HomeTeam = teamDto1,
                 GuestTeam = teamDto2,
-                TypedResults = null
             };
         if (id == 1)
         {

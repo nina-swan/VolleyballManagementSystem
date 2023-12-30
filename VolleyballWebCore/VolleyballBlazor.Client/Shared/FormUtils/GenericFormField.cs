@@ -54,7 +54,7 @@ namespace VolleyballBlazor.Client.Shared.FormUtils
 
         public PropertyInfo Property { get; }
         public string EditorId => _form.BaseEditorId + '_' + Property.Name;
-        public TModel Owner => _form.Model;
+        public TModel Owner => _form.Model!;
 
         public string DisplayName
         {
@@ -106,7 +106,7 @@ namespace VolleyballBlazor.Client.Shared.FormUtils
 
         public Type PropertyType => Property.PropertyType;
 
-        public object Value
+        public object? Value
         {
             get => Property.GetValue(Owner);
             set
@@ -146,7 +146,13 @@ namespace VolleyballBlazor.Client.Shared.FormUtils
 
                     if (listProperty != null && listProperty.PropertyType == typeof(List<string>))
                     {
-                        var options = (List<string>)listProperty.GetValue(Owner);
+                        var options = (List<string>?)listProperty.GetValue(Owner);
+
+                        if(options == null)
+                        {
+                            options = new List<string>();
+                            listProperty.SetValue(Owner, options);
+                        }
 
                         return builder =>
                         {
