@@ -21,7 +21,29 @@
 
     protected override async Task OnInitializedAsync()
     {
-        NewMatch.VenueList = (await matchOrganizerService.GetVenues()).Data;
+        var venuesResult = (await matchOrganizerService.GetVenues());
+        if (venuesResult.Success)
+        {
+            NewMatch.VenueList = venuesResult.Data!;
+        }
+
+        var roundsResult = await matchOrganizerService.GetRounds();
+        if (roundsResult.Success)
+        {
+            NewMatch.RoundList = roundsResult.Data!;
+        }
+
+        var leaguesResult = await matchOrganizerService.GetLeagues();
+        if (leaguesResult.Success)
+        {
+            NewMatch.LeagueList = leaguesResult.Data!;
+        }
+
+        var refereesResult = await matchOrganizerService.GetReferees();
+        if (refereesResult.Success)
+        {
+            NewMatch.RefereeList = refereesResult.Data!;
+        }
     }
 
     public async Task OnSubmit()

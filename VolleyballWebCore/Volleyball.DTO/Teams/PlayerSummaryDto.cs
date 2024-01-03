@@ -6,9 +6,17 @@ using System.Threading.Tasks;
 
 namespace Volleyball.DTO.Teams
 {
-    public class PlayerSummaryDto
+    public class PlayerSummaryDto : ISelectValue
     {
         public int Id { get; set; }
+
+        public string Name
+        {
+            get
+            {
+                return $"{FirstName} {LastName}";
+            }
+        }
 
         public string FirstName { get; set; } = null!;
 

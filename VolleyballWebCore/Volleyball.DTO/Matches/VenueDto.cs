@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Volleyball.DTO.Matches
 {
-    public class VenueDto
+    public class VenueDto : ISelectValue
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;

@@ -8,7 +8,7 @@ using Volleyball.Infrastructure.Database.Models;
 
 namespace Volleyball.DTO.Teams
 {
-    public class TeamDto
+    public class TeamDto : ISelectValue
     {
         public int Id { get; set; }
 

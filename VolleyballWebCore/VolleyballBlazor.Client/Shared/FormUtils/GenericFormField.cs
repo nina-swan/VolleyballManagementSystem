@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Volleyball.DTO;
 using VolleyballBlazor.Client.Models;
 using VolleyballBlazor.Client.Shared.Components;
 
@@ -146,11 +147,11 @@ namespace VolleyballBlazor.Client.Shared.FormUtils
 
                     if (listProperty != null && listProperty.PropertyType == typeof(List<string>))
                     {
-                        var options = (List<string>?)listProperty.GetValue(Owner);
+                        var options = (List<ISelectValue>?)listProperty.GetValue(Owner);
 
                         if(options == null)
                         {
-                            options = new List<string>();
+                            options = new List<ISelectValue>();
                             listProperty.SetValue(Owner, options);
                         }
 
@@ -168,8 +169,8 @@ namespace VolleyballBlazor.Client.Shared.FormUtils
                             foreach (var item in options)
                             {
                                 builder.OpenElement(4, "option");
-                                builder.AddAttribute(5, "value", item);
-                                builder.AddContent(6, item);
+                                builder.AddAttribute(5, "value", item.Id);
+                                builder.AddContent(6, item.Name);
                                 builder.CloseElement();
                             }
                             builder.CloseComponent();
