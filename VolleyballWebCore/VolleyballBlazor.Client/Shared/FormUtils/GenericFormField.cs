@@ -145,11 +145,11 @@ namespace VolleyballBlazor.Client.Shared.FormUtils
                     var listPropertyName = $"{propertyName.Substring(0, propertyName.Length - 2)}List";
                     var listProperty = typeof(TModel).GetProperty(listPropertyName);
 
-                    if (listProperty != null && listProperty.PropertyType == typeof(List<string>))
+                    if (listProperty != null)
                     {
-                        var options = (List<ISelectValue>?)listProperty.GetValue(Owner);
+                        var options = (IEnumerable<ISelectValue>?)listProperty.GetValue(Owner);
 
-                        if(options == null)
+                        if (options == null)
                         {
                             options = new List<ISelectValue>();
                             listProperty.SetValue(Owner, options);

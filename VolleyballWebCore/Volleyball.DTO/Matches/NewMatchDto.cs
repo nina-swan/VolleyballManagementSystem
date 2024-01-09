@@ -14,11 +14,14 @@ namespace Volleyball.DTO.Matches
         [Display(Name = "Data")]
         public DateTime Schedule { get; set; } = DateTime.Now;
 
-        [Display(Name = "Miejsce")]
-        public int VenueId { get; set; }
+        [Display(Name = "Sezon")]
+        public int SeasonId { get; set; }
 
         [Display(Name = "Liga")]
         public int LeagueId { get; set; }
+
+        [Display(Name = "Miejsce")]
+        public int VenueId { get; set; }
 
         [Display(Name = "Sektor")]
         public int Sector { get; set; }

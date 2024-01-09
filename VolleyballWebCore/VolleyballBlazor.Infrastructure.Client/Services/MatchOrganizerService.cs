@@ -15,6 +15,7 @@ namespace VolleyballBlazor.Infrastructure.Client.Services
         public Task<ApiResponse<List<RoundDto>>> GetRounds();
         public Task<ApiResponse<List<LeagueDto>>> GetLeagues();
         public Task<ApiResponse<List<PlayerSummaryDto>>> GetReferees();
+        public Task<ApiResponse<List<SeasonDto>>> GetSeasons();
         public Task<ApiResponse<MatchDto>> GetMatch(int matchId);
         public Task<ApiResponse> CreateMatch(NewMatchDto match);
         public Task<ApiResponse> UpdateMatch(ManageMatchDto match);
@@ -70,6 +71,12 @@ namespace VolleyballBlazor.Infrastructure.Client.Services
         {
             var response = await httpClient.PutAsJsonAsync("api/match", match);
             return new ApiResponse(response);
+        }
+
+        public async Task<ApiResponse<List<SeasonDto>>> GetSeasons()
+        {
+            var response = await httpClient.GetAsync("api/season");
+            return new ApiResponse<List<SeasonDto>>(response);
         }
 
     }

@@ -11,5 +11,17 @@ namespace Volleyball.DTO.Teams
         public int Id { get; set; }
         public string Name { get; set; } = null!;
 
+        public int LeagueId { get; set; }
+
+        public static explicit operator TeamSummaryDto(Volleyball.Infrastructure.Database.Models.Team team)
+        {
+            return new TeamSummaryDto
+            {
+                Id = team.Id,
+                Name = team.Name,
+                LeagueId = team.LeagueId
+            };
+        }
+
     }
 }

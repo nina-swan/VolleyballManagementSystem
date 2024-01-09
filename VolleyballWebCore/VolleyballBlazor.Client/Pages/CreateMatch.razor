@@ -1,10 +1,11 @@
 ﻿@page "/createMatch"
 @inject IMatchOrganizerService matchOrganizerService
+@inject ITeamService teamService
 
 <EditForm Model="NewMatch" OnValidSubmit="OnSubmit">
     <DataAnnotationsValidator />
 
-    <GenericForm Model="NewMatch" EditorClass="form-control">
+    <GenericForm ModelChanged="OnChange" TModel="NewMatchModel" Model="NewMatch" EditorClass="form-control">
         <FieldTemplate Context="field">
             <div class="form-group">
                 <label for="@field.EditorId">@field.DisplayName</label>
@@ -15,12 +16,29 @@
 
 
     </GenericForm>
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Utwórz</button>
+    </div>
 </EditForm>
 @code {
     public NewMatchModel NewMatch { get; set; } = new NewMatchModel();
+    private List<RoundDto> AllRounds { get; set; } = new List<RoundDto>();
+    private List<TeamSummaryDto> AllTeams { get; set; } = new List<TeamSummaryDto>();
+
+    private int previousLeagueId = 0;
+    private int previousSeasonId = 0;
 
     protected override async Task OnInitializedAsync()
     {
+        var seasonsResult = await matchOrganizerService.GetSeasons();
+        if (seasonsResult.Success)
+        {
+            NewMatch.SeasonList = seasonsResult.Data!;
+            NewMatch.SeasonId = NewMatch.SeasonList.First().Id;
+            previousSeasonId = NewMatch.SeasonId;
+        }
+
         var venuesResult = (await matchOrganizerService.GetVenues());
         if (venuesResult.Success)
         {
@@ -30,13 +48,16 @@
         var roundsResult = await matchOrganizerService.GetRounds();
         if (roundsResult.Success)
         {
-            NewMatch.RoundList = roundsResult.Data!;
+            AllRounds = roundsResult.Data!;
+            NewMatch.RoundList = AllRounds.Where(r => r.SeasonId == NewMatch.SeasonId).ToList();
         }
 
         var leaguesResult = await matchOrganizerService.GetLeagues();
         if (leaguesResult.Success)
         {
             NewMatch.LeagueList = leaguesResult.Data!;
+            NewMatch.LeagueId = NewMatch.LeagueList.First().Id;
+            previousLeagueId = NewMatch.LeagueId;
         }
 
         var refereesResult = await matchOrganizerService.GetReferees();
@@ -44,10 +65,34 @@
         {
             NewMatch.RefereeList = refereesResult.Data!;
         }
+
+        var teamsResult = await teamService.GetAllTeams();
+        if (teamsResult.Success)
+        {
+            AllTeams = teamsResult.Data!;
+            NewMatch.GuestTeamList = AllTeams.Where(t => t.LeagueId == NewMatch.LeagueId).ToList();
+            NewMatch.HomeTeamList = AllTeams.Where(t => t.LeagueId == NewMatch.LeagueId).ToList();
+        }
     }
 
     public async Task OnSubmit()
     {
 
+    }
+
+    private void OnChange(NewMatchModel model)
+    {
+        if (previousLeagueId != model.LeagueId)
+        {
+            previousLeagueId = model.LeagueId;
+            NewMatch.GuestTeamList = AllTeams.Where(t => t.LeagueId == model.LeagueId).ToList();
+            NewMatch.HomeTeamList = AllTeams.Where(t => t.LeagueId == model.LeagueId).ToList();
+        }
+
+        if (previousSeasonId != model.SeasonId)
+        {
+            previousSeasonId = model.SeasonId;
+            NewMatch.RoundList = AllRounds.Where(r => r.SeasonId == model.SeasonId).ToList();
+        }
     }
 }

@@ -10,7 +10,7 @@ namespace VolleyballBlazor.Infrastructure.Client.Services
 {
     public interface ITeamService
     {
-        public Task<ApiResponse<List<TeamDto>>> GetAllTeams();
+        public Task<ApiResponse<List<TeamSummaryDto>>> GetAllTeams();
         public Task<ApiResponse<TeamDto>> GetTeam(int id);
         public Task<ApiResponse> CreateTeam(NewTeamDto team);
         public Task<ApiResponse> UpdateTeam(ManageTeamDto team);
@@ -32,10 +32,10 @@ namespace VolleyballBlazor.Infrastructure.Client.Services
             _httpClient = httpClient;
         }
 
-        public async Task<ApiResponse<List<TeamDto>>> GetAllTeams()
+        public async Task<ApiResponse<List<TeamSummaryDto>>> GetAllTeams()
         {
             var response = await _httpClient.GetAsync("api/team");
-            return new ApiResponse<List<TeamDto>>(response);
+            return new ApiResponse<List<TeamSummaryDto>>(response);
         }
 
         public async Task<ApiResponse<TeamDto>> GetTeam(int id)

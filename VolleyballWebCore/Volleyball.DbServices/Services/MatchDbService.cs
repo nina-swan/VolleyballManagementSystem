@@ -180,7 +180,7 @@ namespace Volleyball.DbServices.Services
                 .Where(p => p.Credentials != null)
                 .Include(p => p.Credentials)
                 .ThenInclude(c => c!.Roles)
-                .Where(p => p.Credentials!.Roles != null && p.Credentials.Roles.Any(r => r.Name == "Referee"))
+                .Where(p => p.Credentials!.Roles.Any(r => r.Name == Roles.Arbiter))
                 .ToListAsync();
 
             response.Data = referees.Select(r => (PlayerSummaryDto)r!).ToList();
