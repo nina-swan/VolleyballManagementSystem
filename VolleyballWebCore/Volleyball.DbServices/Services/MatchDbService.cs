@@ -225,5 +225,24 @@ namespace Volleyball.DbServices.Services
             response.Data = matches.Select(m => (MatchSummaryDto)m).ToList();
             return response;
         }
+
+        public async Task<ServiceResponse<List<StandingsDto>>> GetStandings(int seasonId, int leagueId)
+        {
+            var response = new ServiceResponse<List<StandingsDto>>();
+            var teams = await _context.Teams
+                .Include(t => t.League)
+                .Include(t => t.GuestMatches)
+                    .ThenInclude(m => m.Round)
+                    .ThenInclude(r => r.Season)
+                .Include(t => t.HomeMatches)
+                    .ThenInclude(m => m.Round)
+                    .ThenInclude(r => r.Season)
+                .Where(t => t.LeagueId == leagueId)
+                .ToListAsync();
+
+            response.Data = teams.Select(t => new StandingsDto(t, seasonId)).OrderByDescending(s => s.Points).ToList();
+
+            return response;
+        }
     }
 }

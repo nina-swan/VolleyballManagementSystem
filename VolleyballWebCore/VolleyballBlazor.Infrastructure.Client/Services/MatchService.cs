@@ -20,6 +20,8 @@ namespace VolleyballBlazor.Infrastructure.Client.Services
         public Task<ApiResponse<List<MatchSummaryDto>>> GetMatches(int seasonId, int leagueId, int roundId);
         public Task<ApiResponse<List<MatchSummaryDto>>> GetMatches(int seasonId, int teamId);
 
+        public Task<ApiResponse<List<StandingsDto>>> GetStandings(int seasonId, int leagueId);
+
     }
     public class MatchService : IMatchService
     {
@@ -75,6 +77,12 @@ namespace VolleyballBlazor.Infrastructure.Client.Services
         {
             var response = await httpClient.GetAsync($"api/match?seasonId={seasonId}&teamId={teamId}");
             return new ApiResponse<List<MatchSummaryDto>>(response);
+        }
+
+        public async Task<ApiResponse<List<StandingsDto>>> GetStandings(int seasonId, int leagueId)
+        {
+            var response = await httpClient.GetAsync($"api/match/standings?seasonId={seasonId}&leagueId={leagueId}");
+            return new ApiResponse<List<StandingsDto>>(response);
         }
 
     }

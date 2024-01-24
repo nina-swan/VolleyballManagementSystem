@@ -100,5 +100,16 @@ namespace Volleyball.Api.Controllers
 
             return Ok(await matchDbService.GetMatches(leagueId, seasonId, roundId));
         }
+
+        [HttpGet]
+        [Route("standings")]
+        public async Task<IActionResult> GetStandings([FromQuery]int leagueId, [FromQuery]int seasonId)
+        {
+            if (leagueId == 0 || seasonId == 0)
+            {
+                return BadRequest();
+            }
+            return Ok(await matchDbService.GetStandings(seasonId, leagueId));
+        }
     }
 }

@@ -108,7 +108,7 @@ namespace Volleyball.DbServices.Services
                 Name = team.Name,
                 CreationDate = DateTime.Now,
                 Image = team.Image,
-                LeagueId = 1,
+                LeagueId = 7,
                 CaptainId = captain.Id,
                 TeamPlayers = teamPlayers,
                 Email = team.Email,

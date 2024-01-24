@@ -18,12 +18,12 @@ namespace Volleyball.DTO.Teams
         [Display(Name = "Email drużynowy")]
         [DataType(DataType.EmailAddress)]
         [Required(ErrorMessage = "Email drużynowy jest wymagany")]
-        public string? Email { get; set; }
+        public string Email { get; set; }
 
         [Display(Name = "Telefon kontaktowy")]
         [Required(ErrorMessage = "Telefon kontaktowy jest wymagany")]
         [DataType(DataType.PhoneNumber)]
-        public string? Phone { get; set; } = null!;
+        public string Phone { get; set; } = null!;
 
         [Display(Name = "Opis drużyny")]
         public string? TeamDescription { get; set; }

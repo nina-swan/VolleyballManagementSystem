@@ -326,7 +326,6 @@ namespace VolleyballBlazor.Client.Shared.FormUtils
             if (property.PropertyType == typeof(decimal))
                 return (typeof(InputNumber<decimal>), null);
 
-            Console.WriteLine("OK");
             if (property.PropertyType == typeof(DateTime))
             {
                 var dataType = property.GetCustomAttribute<DataTypeAttribute>();
