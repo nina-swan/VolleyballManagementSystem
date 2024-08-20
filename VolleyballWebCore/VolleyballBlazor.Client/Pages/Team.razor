@@ -360,6 +360,7 @@
         {
             Games = gamesResult.Data!;
         }
+        StateHasChanged();
     }
 
     public async Task<List<SeasonDto>> GetSeasons()
